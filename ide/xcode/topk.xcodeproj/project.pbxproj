@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EDAAA2751C20739500A6A542 /* problem.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAAA2731C20739500A6A542 /* problem.cc */; };
 		EDAAA2761C20739500A6A542 /* scanner.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAAA2741C20739500A6A542 /* scanner.cc */; };
+		EDDDC6221C23019600D2A4EF /* benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61D1C23019600D2A4EF /* benchmark.cc */; };
+		EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61E1C23019600D2A4EF /* rank_parser.cc */; };
+		EDDDC6241C23019600D2A4EF /* rank.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61F1C23019600D2A4EF /* rank.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,10 +27,13 @@
 
 /* Begin PBXFileReference section */
 		EDAAA2681C20735400A6A542 /* topk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = topk; sourceTree = BUILT_PRODUCTS_DIR; };
-		EDAAA2731C20739500A6A542 /* problem.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = problem.cc; path = ../../src/problem.cc; sourceTree = "<group>"; };
 		EDAAA2741C20739500A6A542 /* scanner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scanner.cc; path = ../../src/scanner.cc; sourceTree = "<group>"; };
-		EDAAA2771C2073A500A6A542 /* problem.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = problem.hh; path = ../../src/problem.hh; sourceTree = "<group>"; };
 		EDAAA2781C2073A500A6A542 /* scanner.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = scanner.hh; path = ../../src/scanner.hh; sourceTree = "<group>"; };
+		EDDDC61D1C23019600D2A4EF /* benchmark.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = benchmark.cc; path = ../../src/benchmark.cc; sourceTree = "<group>"; };
+		EDDDC61E1C23019600D2A4EF /* rank_parser.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rank_parser.cc; path = ../../src/rank_parser.cc; sourceTree = "<group>"; };
+		EDDDC61F1C23019600D2A4EF /* rank.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rank.cc; path = ../../src/rank.cc; sourceTree = "<group>"; };
+		EDDDC6201C23019600D2A4EF /* rank_parser.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rank_parser.hh; path = ../../src/rank_parser.hh; sourceTree = "<group>"; };
+		EDDDC6211C23019600D2A4EF /* rank.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rank.hh; path = ../../src/rank.hh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,9 +66,12 @@
 		EDAAA2721C20738400A6A542 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				EDAAA2771C2073A500A6A542 /* problem.hh */,
+				EDDDC61D1C23019600D2A4EF /* benchmark.cc */,
+				EDDDC61E1C23019600D2A4EF /* rank_parser.cc */,
+				EDDDC61F1C23019600D2A4EF /* rank.cc */,
+				EDDDC6201C23019600D2A4EF /* rank_parser.hh */,
+				EDDDC6211C23019600D2A4EF /* rank.hh */,
 				EDAAA2781C2073A500A6A542 /* scanner.hh */,
-				EDAAA2731C20739500A6A542 /* problem.cc */,
 				EDAAA2741C20739500A6A542 /* scanner.cc */,
 			);
 			name = src;
@@ -125,8 +133,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDDDC6221C23019600D2A4EF /* benchmark.cc in Sources */,
 				EDAAA2761C20739500A6A542 /* scanner.cc in Sources */,
-				EDAAA2751C20739500A6A542 /* problem.cc in Sources */,
+				EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */,
+				EDDDC6241C23019600D2A4EF /* rank.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

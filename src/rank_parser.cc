@@ -1,4 +1,4 @@
-#include "problem.hh"
+#include "rank_parser.hh"
 
 #include <iostream>
 #include <fstream>
@@ -6,25 +6,9 @@
 
 #define xLOG_PRODUCTIONS
 
-namespace problem {
+namespace rank {
 
-    //----------------------------------------------------------------------------
-    // Problem
-    //----------------------------------------------------------------------------
-
-    Rank* Problem::rank() { 
-        auto r=new Rank(); 
-        _ranks.push_back(std::unique_ptr<Rank>(r)); 
-        return r;
-    }
-
-    //----------------------------------------------------------------------------
-    // Rank
-    //----------------------------------------------------------------------------
-
-    void Rank::entry(const Entry& e) {
-        _entries.push_back(e);
-    }
+namespace parser {
 
     //----------------------------------------------------------------------------
     // Parser
@@ -32,7 +16,7 @@ namespace problem {
 
     bool Parser::parse(Scanner &scanner) {
         // start new probltm
-        _problem.reset(new Problem());
+        _problem.reset(new RankList());
         _rank = nullptr;
 
         _scanner = &scanner;
@@ -48,7 +32,7 @@ namespace problem {
         return _ok;
     }
     
-    void Parser::swap_problems(std::unique_ptr<Problem> &ptr) {
+    void Parser::swap_problems(std::unique_ptr<RankList> &ptr) {
         _problem.swap(ptr);
     }
 
@@ -197,7 +181,7 @@ namespace problem {
         std::cerr << std::string(4*d,'.') << "E -> i ',' i ',' i ']'" << std::endl;
 #endif
 
-        int id, value, order;
+        std::uint64_t id, value, order;
 
         std::string buffer;
 
@@ -252,5 +236,6 @@ namespace problem {
         return false;
     }
 
-}
+} // parser
 
+} // rank
