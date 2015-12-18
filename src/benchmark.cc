@@ -12,6 +12,20 @@ using namespace rank;
 using namespace rank::parser;
 using namespace topk_algorithms;
 
+//
+// problem file format:
+//
+// problem|origin|num_ranks|rank_sizes|unique_ids|summands|density|spec
+//
+
+
+//
+// output
+//
+// problem|origin|num_ranks|rank_sizes|unique_ids|summands|density|algorithm|hybrid_threshold|time|k|ta
+//
+
+
 int main(int argc, char *argv[]) {
 
     if (argc != 2) {
