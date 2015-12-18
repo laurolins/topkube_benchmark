@@ -240,7 +240,8 @@ int main(int argc, char *argv[]) {
     std::istream *ist_p = &std::cin;
     std::ifstream ist_file;
     if (std::string(argv[1]).compare("-") != 0) {
-        ist_file = std::ifstream(argv[1]);
+        std::ifstream aux(argv[1]);
+        ist_file = std::move(aux);
         ist_p = &ist_file;
     }
     std::ofstream ost(argv[2]);
