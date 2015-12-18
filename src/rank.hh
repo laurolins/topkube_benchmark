@@ -139,6 +139,7 @@ namespace rank {
         void sort();
         
         std::size_t size() const { return _ranks.size(); }
+        
         std::vector<std::unique_ptr<Rank>> _ranks;
     };
 

@@ -66,6 +66,10 @@
             argument = "/Users/llins/projects/topkube_benchmark/data/sample.psv"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/tmp/x"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
