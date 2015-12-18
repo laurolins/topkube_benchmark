@@ -45,14 +45,16 @@ namespace topk_algorithms {
         void k(RankSize k) { _k = k; }
         
         const std::vector<KeyValue>& entries() const { return _entries; }
+        
+        void sort();
 
     public:
         RankSize _k { 0 };
-        std::vector<KeyValue> _entries; //
-        // TODO: measure this! inserting on vectors with
-        // too many objects might be slower since elements
-        // might need to be shuffled around
-        //
+        
+        // assumption: the entries are always in a heap ordering where
+        // value[i - 1] <= value[2*i - 1], value[2*i] for i == 1 to n
+        // not that after sort we have the entries totally in order
+        std::vector<KeyValue> _entries; // heap where the minimum value is on the top
     };
 
     //------------------------------------------------------------------------------

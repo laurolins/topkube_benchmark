@@ -108,14 +108,21 @@ struct Maybe {
 struct RunInfo {
 
     RunInfo& algorithm(const std::string& alg) { _algorithm.reset(alg); return *this; }
-    
+
+    RunInfo& topk(const std::string& st) { _topk.reset(st); return *this; }
+
     RunInfo& k(RankSize k) { _k.reset(k); return *this; }
-    
+
+    RunInfo& topk_sum(Count topk_sum) { _topk_sum.reset(topk_sum); return *this; }
+
     RunInfo& time_seconds(float t) { _time_seconds.reset(t); return *this; }
 
     RunInfo& threshold(float t) { _threshold.reset(t); return *this; }
 
+
     const Maybe<std::string>& algorithm() const { return _algorithm; }
+    const Maybe<std::string>& topk() const { return _topk; }
+    const Maybe<Count>&       topk_sum() const { return _topk_sum; }
     const Maybe<RankSize>&    k() const { return _k; }
     const Maybe<float>   &    threshold() const { return _threshold; }
     const Maybe<float>   &    time_seconds() const { return _time_seconds; }
@@ -138,6 +145,7 @@ struct RunInfo {
         _k.reset();
         _threshold.reset();
         _time_seconds.reset();
+        _topk_sum.reset();
         _ta_k.reset();
         _ta_num_ranks.reset();
         _ta_largest_rank.reset();
@@ -151,6 +159,7 @@ struct RunInfo {
         _sweep_largest_rank.reset();
         _sweep_num_ranks.reset();
         _sweep_entries.reset();
+        _topk.reset();
     }
 
     RunInfo& ta_info(const topk_algorithms::ThresholdAlgorithmStats& ta_stats) {
@@ -177,8 +186,10 @@ struct RunInfo {
     Maybe<std::string> _algorithm;
     Maybe<RankSize>    _k;
 
-    Maybe<float>    _threshold;
-    Maybe<float>    _time_seconds;
+    Maybe<float>        _threshold;
+    Maybe<float>        _time_seconds;
+    Maybe<Count>        _topk_sum;
+    Maybe<std::string>  _topk;
     
     // ta info
     Maybe<RankSize> _ta_k;
@@ -197,7 +208,7 @@ struct RunInfo {
     Maybe<Count>    _sweep_num_ranks;
     Maybe<Count>    _sweep_entries;
     
-    // algorithm|time|k|threshold|ta_k|ta_num_ranks|ta_largest_rank|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries
+    // algorithm|time|k|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries
     
 };
 
@@ -209,6 +220,8 @@ std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
     if (run_info.k())                      os << *run_info.k();                      os << "|";
     if (run_info.time_seconds())           os << *run_info.time_seconds();           os << "|";
     if (run_info.threshold())              os << *run_info.threshold();              os << "|";
+    if (run_info.topk_sum())               os << *run_info.topk_sum();               os << "|";
+    if (run_info.ta_k())                   os << *run_info.ta_k();                   os << "|";
     if (run_info.ta_k())                   os << *run_info.ta_k();                   os << "|";
     if (run_info.ta_num_ranks())           os << *run_info.ta_num_ranks();           os << "|";
     if (run_info.ta_largest_rank())        os << *run_info.ta_largest_rank();        os << "|";
@@ -220,12 +233,13 @@ std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
     if (run_info.sweep_k())                os << *run_info.sweep_k();                os << "|";
     if (run_info.sweep_num_ranks())        os << *run_info.sweep_num_ranks();        os << "|";
     if (run_info.sweep_largest_rank())     os << *run_info.sweep_largest_rank();     os << "|";
-    if (run_info.sweep_entries())          os << *run_info.sweep_entries();
+    if (run_info.sweep_entries())          os << *run_info.sweep_entries();          os << "|";
+    if (run_info.topk())                   os << *run_info.topk();
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const RunInfoHeader& run_info_header) {
-    os << "algorithm|k|time|threshold|ta_k|ta_num_ranks|ta_largest_rank|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries";
+    os << "algorithm|k|time|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries|topk";
     return os;
 }
 
@@ -261,18 +275,39 @@ int main(int argc, char *argv[]) {
     //
     
     std::vector<RankSize> ks         { 5 , 10, 20, 40, 80, 160, 320 };
-    std::vector<float>    thresholds { 0.0f,0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95,1.0f };
+    std::vector<float>    thresholds { 0.0f, 0.025f, 0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95f,1.0f };
+
+//    std::vector<RankSize> ks         { 5 };
+//    std::vector<float>    thresholds { 0.0f,0.05f,0.10f,1.0f };
+
+    auto register_topk = [](RunInfo& run_info, TopK& topk) {
+        topk.sort();
+        auto &entries = topk.entries();
+        Count sum = 0;
+        std::stringstream ss;
+        bool first = true;
+        for(auto it=entries.rbegin();it!=entries.rend();++it) {
+            sum += it->value();
+            if (!first) {
+                ss << ",";
+            }
+            ss << it->key() << ":" << it->value();
+            first = false;
+        }
+        run_info.topk_sum(sum);
+        run_info.topk(ss.str());
+    };
+    
     
     // std::istream& ist = std::cin;
     std::string line;
     int line_no = 0;
-    int problem_no = 0;
     while (std::getline(*ist, line, '\n')) {
         ++line_no;
         if (line_no == 1) { // header hack
             continue;
         }
-
+        
         std::stringstream ss(line);
         std::string token;
         
@@ -321,6 +356,7 @@ int main(int argc, char *argv[]) {
                         auto time = algorithm_watch.elapsed();
                         run_info.time_seconds(time);
                         run_info.ta_info(result_ta.stats);
+                        register_topk(run_info,result_ta.topk);
                     }
                     else if (t == 1.0f) { // sweep
                         run_info.algorithm("sweep");
@@ -329,6 +365,7 @@ int main(int argc, char *argv[]) {
                         auto time = algorithm_watch.elapsed();
                         run_info.time_seconds(time);
                         run_info.sweep_info(result_sweep.stats);
+                        register_topk(run_info,result_sweep.topk);
                     }
                     else {
                         run_info.algorithm("hybrid");
@@ -338,6 +375,7 @@ int main(int argc, char *argv[]) {
                         run_info.time_seconds(time);
                         run_info.sweep_info(result_hybrid.sweep_stats);
                         run_info.ta_info(result_hybrid.ta_stats);
+                        register_topk(run_info,result_hybrid.topk);
                     }
 
                     // std::cerr << "alg:" << *run_info.algorithm() << " k:"<< k << " threshold:" << t << " time:" << *run_info.time_seconds() << std::endl;
@@ -348,7 +386,7 @@ int main(int argc, char *argv[]) {
                 }
             }
 
-            std::cerr << "finished processing problem " << line_no << " time: " << watch.elapsed() << std::endl;
+            std::cerr << "finished processing problem " << problem_id << " time: " << watch.elapsed() << std::endl;
 
         }
         else {

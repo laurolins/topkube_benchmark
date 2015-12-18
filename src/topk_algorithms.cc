@@ -14,13 +14,16 @@ namespace topk_algorithms {
     // TopK
     //------------------------------------------------------------------------------
 
+    bool topk_heap_cmp(const KeyValue& a, const KeyValue& b) { return a.value() > b.value(); }
+    bool topk_sort_cmp(const KeyValue& a, const KeyValue& b) { return a.value() < b.value(); }
+    
     void TopK::insert(const KeyValue& x) {
         _entries.push_back(x);
         if (_k > 0) {
             // make smallest value be that first one
-            std::push_heap(_entries.begin(), _entries.end(),[](const KeyValue& a, const KeyValue& b) { return a.value() > b.value(); });
+            std::push_heap(_entries.begin(), _entries.end(),topk_heap_cmp);
             if (_entries.size() > _k) {
-                std::pop_heap(_entries.begin(), _entries.end(),[](const KeyValue& a, const KeyValue& b) { return a.value() > b.value(); });
+                std::pop_heap(_entries.begin(), _entries.end(),topk_heap_cmp);
                 _entries.pop_back();
             }
         }
@@ -35,18 +38,18 @@ namespace topk_algorithms {
         }
         return true;
     }
+    
+    void TopK::sort() {
+        std::sort(_entries.begin(), _entries.end(), topk_sort_cmp);
+    }
 
     RankSize TopK::count_entries_above_or_equal(Value threshold) const {
-        auto entries_above_threshold = size();
-        for (auto it=_entries.rbegin();it!=_entries.rend();++it) {
-            if (it->value() < threshold) {
-                --entries_above_threshold;
-            }
-            else {
-                break;
-            }
+        RankSize result = size();
+        for (auto &e: _entries) {
+            if (e.value() < threshold)
+                --result;
         }
-        return entries_above_threshold;
+        return result;
     }
 
     //------------------------------------------------------------------------------
