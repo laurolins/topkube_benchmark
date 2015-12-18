@@ -127,6 +127,8 @@ namespace rank {
         Rank* rank(Index i) { return _ranks.at(i).get(); } // new rank
         
         const Rank* rank(Index i) const { return _ranks.at(i).get(); } // new rank
+
+        void tag_sorted() { for (auto &r: _ranks) r->_dirty = false; }
         
         Count num_entries() const;
 

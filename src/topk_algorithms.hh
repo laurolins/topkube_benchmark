@@ -129,6 +129,9 @@ namespace topk_algorithms {
         Count random_access_hit   { 0 };
         Count random_access_miss  { 0 };
         Count k                   { 0 };
+        Count num_ranks           { 0 };
+        Count largest_rank        { 0 };
+        Count entries             { 0 };
     };
 
     //------------------------------------------------------------------------------
@@ -137,10 +140,10 @@ namespace topk_algorithms {
     
     struct SweepAlgorithmStats {
         SweepAlgorithmStats() = default;
-        Count num_ranks   { 0 };
-        Count num_entries { 0 };
-        Count num_keys    { 0 };
-        Count k           { 0 };
+        Count num_ranks    { 0 };
+        Count largest_rank { 0 };
+        Count entries      { 0 };
+        Count k            { 0 };
     };
 
     //------------------------------------------------------------------------------

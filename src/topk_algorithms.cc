@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
+#include <iostream>
+
 namespace topk_algorithms {
 
     //------------------------------------------------------------------------------
@@ -13,14 +15,12 @@ namespace topk_algorithms {
     //------------------------------------------------------------------------------
 
     void TopK::insert(const KeyValue& x) {
-        if (_k == 0) {
-            _entries.push_back(x);
-        }
-        else {
-            auto it = std::upper_bound(_entries.begin(),_entries.end(), x);
-            // assuming keys are different
-            _entries.insert(it, x);
-            if (_k && _entries.size() > _k) {
+        _entries.push_back(x);
+        if (_k > 0) {
+            // make smallest value be that first one
+            std::push_heap(_entries.begin(), _entries.end(),[](const KeyValue& a, const KeyValue& b) { return a.value() > b.value(); });
+            if (_entries.size() > _k) {
+                std::pop_heap(_entries.begin(), _entries.end(),[](const KeyValue& a, const KeyValue& b) { return a.value() > b.value(); });
                 _entries.pop_back();
             }
         }
@@ -147,7 +147,11 @@ namespace topk_algorithms {
         // create m queues
         std::vector<Queue> queues;
         auto m = problem->size();
-        Count num_entries = 0;
+        
+        Count entries = 0;
+        Count largest_rank = 0;
+        
+        
         queues.reserve(m);
         for (auto i=0;i<m;++i) {
             queues.push_back(Queue(problem->rank(i)));
@@ -155,15 +159,20 @@ namespace topk_algorithms {
                 queues.pop_back();
             }
             else {
-                num_entries += queues.back()._rank->size();
+                auto rank_size = queues.back()._rank->size();
+                entries += rank_size;
+                largest_rank = std::max(largest_rank, rank_size);
             }
         };
         std::make_heap(queues.begin(), queues.end());
         
         SweepAlgorithmResult result;
         result.topk.k(k);
-        result.stats.k           = k;
-        result.stats.num_entries = num_entries;
+        result.stats.k            = k;
+        result.stats.num_ranks    = problem->size();
+        result.stats.largest_rank = largest_rank;
+        result.stats.entries      = entries;
+        
         TopK& topk = result.topk;
         
         bool first = true;
@@ -236,6 +245,9 @@ namespace topk_algorithms {
         };
 
         // create m queues
+        Count largest_rank = 0;
+        Count entries      = 0;
+        
         std::vector<Queue> queues;
         Value              head_sum = 0;
         auto m = problem->size();
@@ -244,6 +256,12 @@ namespace topk_algorithms {
             queues.push_back(Queue(problem->rank(i)));
             if (!queues.back().empty()) {
                 head_sum += queues.back().head_value();
+                
+                auto rank_size = queues.back()._rank->size();
+                largest_rank   = std::max(largest_rank, rank_size);
+                entries       += rank_size;
+                
+                
             }
             else {
                 queues.pop_back();
@@ -252,12 +270,15 @@ namespace topk_algorithms {
 
         std::unordered_set<Key> processed_keys;
 
-
         ThresholdAlgorithmResult result;
         result.topk.k(k);
         auto &topk  = result.topk;
         auto &stats = result.stats;
-        stats.k = k;
+
+        stats.k            = k;
+        stats.num_ranks    = problem->size();
+        stats.largest_rank = largest_rank;
+        stats.entries      = entries;
 
         std::size_t i = 0;
         while (i < queues.size()) {
@@ -371,10 +392,15 @@ namespace topk_algorithms {
         // sort instance by decreasing ranks
         std::vector<const Rank*> ranks;
         ranks.reserve(m);
-        for (auto i=0;i<m;++i) { ranks.push_back(problem->rank(i)); }
+        for (auto i=0;i<m;++i) { ranks.push_back(problem->rank(i));}
+
+//        for (auto it=ranks.begin();it!=ranks.end();++it) {
+//            std::cerr << " " << (*it)->size();
+//        }
+//        std::cerr << std::endl;
         
         // sort in decreasing order of entries
-        std::sort(ranks.begin(), ranks.end(), [](const Rank* r1, const Rank* r2) { return r1->size() >= r2->size(); });
+        std::sort(ranks.begin(), ranks.end(), [](const Rank* r1, const Rank* r2) { return r1->size() > r2->size(); });
         
         // cumulative summands
         Count l = 0;

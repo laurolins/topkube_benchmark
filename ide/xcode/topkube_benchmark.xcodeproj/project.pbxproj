@@ -12,10 +12,24 @@
 		EDDDC6241C23019600D2A4EF /* rank.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61F1C23019600D2A4EF /* rank.cc */; };
 		EDDDC6271C23066E00D2A4EF /* topk_algorithms.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */; };
 		EDDDC6291C2476FB00D2A4EF /* format_problems.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC6281C2476FB00D2A4EF /* format_problems.cc */; };
+		EDDDC62C1C248B8E00D2A4EF /* topk_algorithms.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */; };
+		EDDDC62D1C248B8E00D2A4EF /* scanner.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAAA2741C20739500A6A542 /* scanner.cc */; };
+		EDDDC62E1C248B8E00D2A4EF /* rank_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61E1C23019600D2A4EF /* rank_parser.cc */; };
+		EDDDC6301C248B8E00D2A4EF /* rank.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61F1C23019600D2A4EF /* rank.cc */; };
+		EDDDC6371C248BCE00D2A4EF /* benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61D1C23019600D2A4EF /* benchmark.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		EDAAA2661C20735400A6A542 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		EDDDC6321C248B8E00D2A4EF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -38,10 +52,18 @@
 		EDDDC6251C23066E00D2A4EF /* topk_algorithms.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = topk_algorithms.hh; path = ../../src/topk_algorithms.hh; sourceTree = "<group>"; };
 		EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = topk_algorithms.cc; path = ../../src/topk_algorithms.cc; sourceTree = "<group>"; };
 		EDDDC6281C2476FB00D2A4EF /* format_problems.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = format_problems.cc; path = ../../src/format_problems.cc; sourceTree = "<group>"; };
+		EDDDC6361C248B8E00D2A4EF /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		EDAAA2651C20735400A6A542 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EDDDC6311C248B8E00D2A4EF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -63,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				EDAAA2681C20735400A6A542 /* topk */,
+				EDDDC6361C248B8E00D2A4EF /* benchmark */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,9 +110,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		EDAAA2671C20735400A6A542 /* topk */ = {
+		EDAAA2671C20735400A6A542 /* format */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EDAAA26F1C20735400A6A542 /* Build configuration list for PBXNativeTarget "topk" */;
+			buildConfigurationList = EDAAA26F1C20735400A6A542 /* Build configuration list for PBXNativeTarget "format" */;
 			buildPhases = (
 				EDAAA2641C20735400A6A542 /* Sources */,
 				EDAAA2651C20735400A6A542 /* Frameworks */,
@@ -99,9 +122,26 @@
 			);
 			dependencies = (
 			);
-			name = topk;
+			name = format;
 			productName = topk;
 			productReference = EDAAA2681C20735400A6A542 /* topk */;
+			productType = "com.apple.product-type.tool";
+		};
+		EDDDC62A1C248B8E00D2A4EF /* benchmark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EDDDC6331C248B8E00D2A4EF /* Build configuration list for PBXNativeTarget "benchmark" */;
+			buildPhases = (
+				EDDDC62B1C248B8E00D2A4EF /* Sources */,
+				EDDDC6311C248B8E00D2A4EF /* Frameworks */,
+				EDDDC6321C248B8E00D2A4EF /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = benchmark;
+			productName = topk;
+			productReference = EDDDC6361C248B8E00D2A4EF /* benchmark */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -130,7 +170,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EDAAA2671C20735400A6A542 /* topk */,
+				EDAAA2671C20735400A6A542 /* format */,
+				EDDDC62A1C248B8E00D2A4EF /* benchmark */,
 			);
 		};
 /* End PBXProject section */
@@ -145,6 +186,18 @@
 				EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */,
 				EDDDC6291C2476FB00D2A4EF /* format_problems.cc in Sources */,
 				EDDDC6241C23019600D2A4EF /* rank.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EDDDC62B1C248B8E00D2A4EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDDDC62C1C248B8E00D2A4EF /* topk_algorithms.cc in Sources */,
+				EDDDC62D1C248B8E00D2A4EF /* scanner.cc in Sources */,
+				EDDDC62E1C248B8E00D2A4EF /* rank_parser.cc in Sources */,
+				EDDDC6371C248BCE00D2A4EF /* benchmark.cc in Sources */,
+				EDDDC6301C248B8E00D2A4EF /* rank.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,6 +297,20 @@
 			};
 			name = Release;
 		};
+		EDDDC6341C248B8E00D2A4EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EDDDC6351C248B8E00D2A4EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -256,11 +323,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EDAAA26F1C20735400A6A542 /* Build configuration list for PBXNativeTarget "topk" */ = {
+		EDAAA26F1C20735400A6A542 /* Build configuration list for PBXNativeTarget "format" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EDAAA2701C20735400A6A542 /* Debug */,
 				EDAAA2711C20735400A6A542 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EDDDC6331C248B8E00D2A4EF /* Build configuration list for PBXNativeTarget "benchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDDDC6341C248B8E00D2A4EF /* Debug */,
+				EDDDC6351C248B8E00D2A4EF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
