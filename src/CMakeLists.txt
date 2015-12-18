@@ -2,7 +2,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR on)
 include_directories(../thirdparty)
 
 add_executable (topkube-format-problems
-benchmark.cc
+format_problems.cc
 rank_parser.cc
 scanner.cc
 rank.cc

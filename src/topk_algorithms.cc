@@ -13,11 +13,16 @@ namespace topk_algorithms {
     //------------------------------------------------------------------------------
 
     void TopK::insert(const KeyValue& x) {
-        auto it = std::upper_bound(_entries.begin(),_entries.end(), x);
-        // assuming keys are different
-        _entries.insert(it, x);
-        if (_k && _entries.size() > _k) {
-            _entries.pop_back();
+        if (_k == 0) {
+            _entries.push_back(x);
+        }
+        else {
+            auto it = std::upper_bound(_entries.begin(),_entries.end(), x);
+            // assuming keys are different
+            _entries.insert(it, x);
+            if (_k && _entries.size() > _k) {
+                _entries.pop_back();
+            }
         }
     }
 

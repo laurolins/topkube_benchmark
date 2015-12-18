@@ -89,63 +89,13 @@ using namespace topk_algorithms;
 // (B)
 // output
 //
+// problem|dataset|num_ranks|keys|entries|density|algorithm|time|k|hybrid_threshold|ta_num_ranks|ta_keys|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_num_ranks|sweep_keys|sweep_entries
 //
-
-template <typename T>
-struct Maybe {
-    Maybe() = default;
-    Maybe(const T& obj): _object(obj), _present(true) {}
-    void reset(const T& obj) { _object = obj; _present = true; }
-    const T& object() const { return _object; }
-    const T& operator*() const { return _object; }
-    void reset() { _present = false; }
-    T    _object;
-    bool _present { false };
-};
-
-
-
-struct Result {
-    
-    
-    
-    std::string  _algorithm;
-    float        _time;
-    RankSize     _k;
-
-    Maybe<float>    _hybrid_threshold;
-    
-    // ta info
-    Maybe<Count>    _ta_num_ranks;
-    Maybe<RankSize> _ta_k;
-    Maybe<Count>    _ta_keys;
-    Maybe<Count>    _ta_total_access;
-    Maybe<Count>    _ta_ordered_access_hit;
-    Maybe<Count>    _ta_ordered_access_miss;
-    Maybe<Count>    _ta_random_access_hit;
-    Maybe<Count>    _ta_random_access_miss;
-    
-    // sweep info
-    Maybe<Count>    _sweep_num_ranks;
-    Maybe<RankSize> _sweep_k;
-    Maybe<Count>    _ta_keys;
-    Maybe<Count>    _ta_total_access;
-    Maybe<Count>    _ta_ordered_access_hit;
-    Maybe<Count>    _ta_ordered_access_miss;
-    Maybe<Count>    _ta_random_access_hit;
-    Maybe<Count>    _ta_random_access_miss;
-    
-    
-    algorithm|time|k|hybrid_threshold|ta_num_ranks|ta_keys|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_num_ranks|sweep_keys|sweep_entries
-    
-    
-};
-
 
 int main(int argc, char *argv[]) {
 
     if (argc != 3) {
-        std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file>" << std::endl;
+        std::cout << "Usage: benchmark <input> <output>" << std::endl;
         return 0;
     }
     Parser  parser;
@@ -159,41 +109,19 @@ int main(int argc, char *argv[]) {
     
     stopwatch::Stopwatch watch;
     watch.start();
-
-    stopwatch::Stopwatch algorithm_watch;
-
-    std::cout << "problem|dataset|num_ranks|keys|entries|density|rank_sizes|algorithm|time|k|hybrid_threshold|ta_num_ranks|ta_keys|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_num_ranks|sweep_keys|sweep_entries" << std::endl;
     
-    
-    //
-    // sweep, ta, hybrid = 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95
-    // k = 10 20 40 80 160 320
-    //
-    
-    std::vector<RankSize> ks         {   5, 10, 20, 40, 80, 160, 320 };
-    std::vector<float>    thresholds { 0.0f,0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95,1.0f };
+    ost << "problem|dataset|num_ranks|largest_rank|keys|entries|density|rank_sizes|spec" << std::endl;
     
     // std::istream& ist = std::cin;
     std::string line;
     int line_no = 0;
     while (std::getline(ist, line, '\n')) {
         ++line_no;
-
-        std::stringstream ss(line);
-        std::string token;
         
-        std::getline(ss, token, '|');   auto problem = std::stoi(token);
-        std::getline(ss, token, '|');   auto dataset = token;
-        std::getline(ss, token, '|');   auto num_ranks = std::stoi(token);
-        std::getline(ss, token, '|');   auto largest_rank = std::stoi(token);
-        std::getline(ss, token, '|');   auto keys = std::stoi(token);
-        std::getline(ss, token, '|');   auto entries = std::stoi(token);
-        std::getline(ss, token, '|');   auto density = std::stof(token);
-        std::getline(ss, token, '|');   auto rank_sizes = token;
-        std::getline(ss, token, '|');   auto spec = token;
+        auto split_pos = line.find('|');
+        auto dataset = std::string(line.begin(), line.begin() + split_pos);
         
-        
-        Scanner scanner(&spec[0], &spec[spec.size()]);
+        Scanner scanner(&line[split_pos+1], &line[line.size()]);
         auto ok = parser.parse(scanner);
 
         if (ok) {
@@ -209,47 +137,29 @@ int main(int argc, char *argv[]) {
             // assuming parser problem is not dirty
             ProblemRankList problem(*rank_list.get());
             
-            
-            for (auto t: thresholds) {
-                
-                for (auto k: ks) {
-
-                    if (t == 0.0f) { // ta
-                        algorithm_watch.start();
-                        auto result_ta = threshold_algorithm(&problem, k);
-                        auto time = algorithm_watch.elapsed();
-
-
-                    }
-                    else if (t == 1.0f) { // sweep
-                        algorithm_watch.start();
-                        auto result_sweep = sweep(&problem, k);
-                        auto time = algorithm_watch.elapsed();
-                        
-                        
-
-                        // problem|dataset|num_ranks|keys|entries|density|algorithm|time|k|hybrid_threshold|ta_num_ranks|ta_keys|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_num_ranks|sweep_keys|sweep_entries
-
-                        
-                    }
-                    else {
-                        algorithm_watch.start();
-                        auto result_hybrid = hybrid_algorithm(&problem, k,t);
-                        auto time = algorithm_watch.elapsed();
-
-                    }
-                    
-                }
-                
-            }
-            
-            
-            
-            
-            
             auto result_sweep     = sweep(&problem, 0);
             // std::cout << "result_sweep:         " << result_sweep.topk << std::endl;
             
+            std::string rank_sizes;
+            Count       largest_rank = 0;
+            {
+                std::vector<Count> rank_sizes_vec;
+                rank_sizes_vec.reserve(rank_list->size());
+                for (auto i=0;i<rank_list->size();++i) {
+                    rank_sizes_vec.push_back(rank_list->rank(i)->size());
+                }
+                std::sort(rank_sizes_vec.begin(),rank_sizes_vec.end(),[](Count a, Count b) { return a>b; });
+                std::stringstream ss;
+                bool first = true;
+                for (auto c: rank_sizes_vec) {
+                    if (!first)
+                        ss << ',';
+                    ss << c;
+                    first = false;
+                }
+                rank_sizes = ss.str();
+                largest_rank = rank_sizes_vec[0];
+            }
             
             auto num_ranks = rank_list->size();
             auto keys      = result_sweep.topk.size();

@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		EDAAA2761C20739500A6A542 /* scanner.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAAA2741C20739500A6A542 /* scanner.cc */; };
-		EDDDC6221C23019600D2A4EF /* benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61D1C23019600D2A4EF /* benchmark.cc */; };
 		EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61E1C23019600D2A4EF /* rank_parser.cc */; };
 		EDDDC6241C23019600D2A4EF /* rank.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61F1C23019600D2A4EF /* rank.cc */; };
 		EDDDC6271C23066E00D2A4EF /* topk_algorithms.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */; };
+		EDDDC6291C2476FB00D2A4EF /* format_problems.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC6281C2476FB00D2A4EF /* format_problems.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +37,7 @@
 		EDDDC6211C23019600D2A4EF /* rank.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rank.hh; path = ../../src/rank.hh; sourceTree = "<group>"; };
 		EDDDC6251C23066E00D2A4EF /* topk_algorithms.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = topk_algorithms.hh; path = ../../src/topk_algorithms.hh; sourceTree = "<group>"; };
 		EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = topk_algorithms.cc; path = ../../src/topk_algorithms.cc; sourceTree = "<group>"; };
+		EDDDC6281C2476FB00D2A4EF /* format_problems.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = format_problems.cc; path = ../../src/format_problems.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +70,7 @@
 		EDAAA2721C20738400A6A542 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				EDDDC6281C2476FB00D2A4EF /* format_problems.cc */,
 				EDDDC6251C23066E00D2A4EF /* topk_algorithms.hh */,
 				EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */,
 				EDDDC61D1C23019600D2A4EF /* benchmark.cc */,
@@ -116,7 +118,7 @@
 					};
 				};
 			};
-			buildConfigurationList = EDAAA2631C20735400A6A542 /* Build configuration list for PBXProject "topk" */;
+			buildConfigurationList = EDAAA2631C20735400A6A542 /* Build configuration list for PBXProject "topkube_benchmark" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -138,10 +140,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDDDC6221C23019600D2A4EF /* benchmark.cc in Sources */,
 				EDDDC6271C23066E00D2A4EF /* topk_algorithms.cc in Sources */,
 				EDAAA2761C20739500A6A542 /* scanner.cc in Sources */,
 				EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */,
+				EDDDC6291C2476FB00D2A4EF /* format_problems.cc in Sources */,
 				EDDDC6241C23019600D2A4EF /* rank.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -245,7 +247,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EDAAA2631C20735400A6A542 /* Build configuration list for PBXProject "topk" */ = {
+		EDAAA2631C20735400A6A542 /* Build configuration list for PBXProject "topkube_benchmark" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EDAAA26D1C20735400A6A542 /* Debug */,
