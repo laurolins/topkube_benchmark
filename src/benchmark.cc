@@ -266,12 +266,10 @@ int main(int argc, char *argv[]) {
     // std::istream& ist = std::cin;
     std::string line;
     int line_no = 0;
-    
+    int problem_no = 0;
     while (std::getline(*ist, line, '\n')) {
         ++line_no;
-        
         if (line_no == 1) { // header hack
-            line_no = 0;
             continue;
         }
 
