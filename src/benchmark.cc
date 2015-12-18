@@ -237,7 +237,12 @@ int main(int argc, char *argv[]) {
     }
     Parser  parser;
 
-    std::ifstream ist(argv[1]);
+    std::istream *ist = &std::cin;
+    std::ifstream ist_file;
+    if (std::string(argv[1]).compare("-") != 0) {
+        ist_file = std::ifstream(argv[1]);
+        ist = &ist_file;
+    }
     std::ofstream ost(argv[2]);
     
     //
@@ -262,11 +267,13 @@ int main(int argc, char *argv[]) {
     // std::istream& ist = std::cin;
     std::string line;
     int line_no = 0;
-    while (std::getline(ist, line, '\n')) {
+    while (std::getline((*ist), line, '\n')) {
         ++line_no;
         
-//        if (line_no != 4)
-//            continue;
+        if (line_no == 1) { // header hack
+            line_no = 0;
+            continue;
+        }
 
         std::stringstream ss(line);
         std::string token;
