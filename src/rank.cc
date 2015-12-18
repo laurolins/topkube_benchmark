@@ -3,22 +3,18 @@
 namespace rank {
 
 
-    //----------------------------------------------------------------------------
-    // RankList
-    //----------------------------------------------------------------------------
-
-    Rank* RankList::rank() { 
-        auto r=new Rank(); 
-        _ranks.push_back(std::unique_ptr<Rank>(r)); 
-        return r;
-    }
-
 //------------------------------------------------------------------------------
 // Rank
 //------------------------------------------------------------------------------
 
     void Rank::entry(const Entry& e) {
         _entries.push_back(e);
+    }
+
+    Rank::Rank(const std::vector<KeyValue>& key_values) {
+        _dirty = true;
+        _entries.reserve(key_values.size());
+        for (auto &kv: key_values) { _entries.push_back(kv); }
     }
 
     Value Rank::value_of(Key key) const {
@@ -55,7 +51,7 @@ namespace rank {
         _dirty = true;
     }
 
-    void Rank::rank() {
+    void Rank::sort() {
     
         if (!dirty())
             return;
@@ -84,5 +80,48 @@ namespace rank {
     
         _dirty = false;
     }
+
+    //----------------------------------------------------------------------------
+    // RankList
+    //----------------------------------------------------------------------------
+    
+    Rank* RankList::rank() {
+        auto r=new Rank();
+        _ranks.push_back(std::unique_ptr<Rank>(r));
+        return r;
+    }
+    
+    void RankList::sort() {
+        for (auto &it: _ranks) {
+            it->sort();
+        }
+    }
+    
+    Count RankList::num_entries() const {
+        Count result = 0;
+        for (auto &it: _ranks) {
+            result += it->size();
+        }
+        return result;
+    }
+
+    Count RankList::largest_rank_size() const {
+        Count result = 0;
+        for (auto &it: _ranks) {
+            result = std::max(result,it->size());
+        }
+        return result;
+    }
+
+    Count RankList::smallest_rank_size() const {
+        Count result = 0;
+        if (_ranks.size())
+            result = _ranks[0]->size();
+        for (auto &it: _ranks) {
+            result = std::min(result,it->size());
+        }
+        return result;
+    }
+
 
 }

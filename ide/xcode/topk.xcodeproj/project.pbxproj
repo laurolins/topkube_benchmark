@@ -11,6 +11,7 @@
 		EDDDC6221C23019600D2A4EF /* benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61D1C23019600D2A4EF /* benchmark.cc */; };
 		EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61E1C23019600D2A4EF /* rank_parser.cc */; };
 		EDDDC6241C23019600D2A4EF /* rank.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC61F1C23019600D2A4EF /* rank.cc */; };
+		EDDDC6271C23066E00D2A4EF /* topk_algorithms.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,6 +35,8 @@
 		EDDDC61F1C23019600D2A4EF /* rank.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rank.cc; path = ../../src/rank.cc; sourceTree = "<group>"; };
 		EDDDC6201C23019600D2A4EF /* rank_parser.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rank_parser.hh; path = ../../src/rank_parser.hh; sourceTree = "<group>"; };
 		EDDDC6211C23019600D2A4EF /* rank.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = rank.hh; path = ../../src/rank.hh; sourceTree = "<group>"; };
+		EDDDC6251C23066E00D2A4EF /* topk_algorithms.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = topk_algorithms.hh; path = ../../src/topk_algorithms.hh; sourceTree = "<group>"; };
+		EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = topk_algorithms.cc; path = ../../src/topk_algorithms.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +69,8 @@
 		EDAAA2721C20738400A6A542 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				EDDDC6251C23066E00D2A4EF /* topk_algorithms.hh */,
+				EDDDC6261C23066E00D2A4EF /* topk_algorithms.cc */,
 				EDDDC61D1C23019600D2A4EF /* benchmark.cc */,
 				EDDDC61E1C23019600D2A4EF /* rank_parser.cc */,
 				EDDDC61F1C23019600D2A4EF /* rank.cc */,
@@ -134,6 +139,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDDDC6221C23019600D2A4EF /* benchmark.cc in Sources */,
+				EDDDC6271C23066E00D2A4EF /* topk_algorithms.cc in Sources */,
 				EDAAA2761C20739500A6A542 /* scanner.cc in Sources */,
 				EDDDC6231C23019600D2A4EF /* rank_parser.cc in Sources */,
 				EDDDC6241C23019600D2A4EF /* rank.cc in Sources */,

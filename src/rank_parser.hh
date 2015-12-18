@@ -38,7 +38,7 @@ namespace rank {
 
         const bool ok() const { return _ok; }
 
-        void swap_problems(std::unique_ptr<RankList> &ptr);
+        void swap_rank_list(std::unique_ptr<RankList> &ptr);
 
     private:
 

@@ -32,7 +32,7 @@ namespace parser {
         return _ok;
     }
     
-    void Parser::swap_problems(std::unique_ptr<RankList> &ptr) {
+    void Parser::swap_rank_list(std::unique_ptr<RankList> &ptr) {
         _problem.swap(ptr);
     }
 

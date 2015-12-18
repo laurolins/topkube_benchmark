@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/llins/projects/topk/data/small.psv"
+            argument = "/Users/llins/projects/topk/data/sample.psv"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

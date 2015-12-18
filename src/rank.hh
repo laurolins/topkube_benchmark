@@ -82,6 +82,8 @@ namespace rank {
     public:
         Rank() = default;
 
+        Rank(const std::vector<KeyValue>& key_values);
+
         Value value_of(Key key) const;
 
         Entry* find(Key key);
@@ -106,7 +108,7 @@ namespace rank {
 
         // fill in the order field in the records
         // it should point to the correctly ranked record
-        void rank();
+        void sort();
     
     public:
 
@@ -121,7 +123,22 @@ namespace rank {
     //----------------------------------------------------------------------------
 
     struct RankList {
+        
+        Rank* rank(Index i) { return _ranks.at(i).get(); } // new rank
+        
+        const Rank* rank(Index i) const { return _ranks.at(i).get(); } // new rank
+        
+        Count num_entries() const;
+
+        Count largest_rank_size() const;
+
+        Count smallest_rank_size() const;
+
         Rank* rank(); // new rank
+        
+        void sort();
+        
+        std::size_t size() const { return _ranks.size(); }
         std::vector<std::unique_ptr<Rank>> _ranks;
     };
 
