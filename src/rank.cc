@@ -1,5 +1,7 @@
 #include "rank.hh"
 
+#include <algorithm>
+
 namespace rank {
 
 

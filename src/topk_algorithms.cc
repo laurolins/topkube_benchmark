@@ -1,5 +1,6 @@
 #include "topk_algorithms.hh"
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <unordered_set>
