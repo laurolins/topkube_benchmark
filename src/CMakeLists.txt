@@ -15,6 +15,7 @@ scanner.cc
 rank.cc
 topk_algorithms.cc)
 
+target_link_libraries (topkube-benchmark ${CMAKE_THREAD_LIBS_INIT})
 # target_link_libraries(nanocubes-app PUBLIC
 # polycover_core
 # lluitk_core
