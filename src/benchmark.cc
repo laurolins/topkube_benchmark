@@ -3,6 +3,10 @@
 #include <sstream>
 #include <chrono>
 #include <algorithm>
+#include <vector>
+#include <string>
+#include <mutex>
+#include <thread>
 
 #include "rank.hh"
 
@@ -243,72 +247,144 @@ std::ostream& operator<<(std::ostream& os, const RunInfoHeader& run_info_header)
     return os;
 }
 
-int main(int argc, char *argv[]) {
 
-    if (argc != 3) {
-        std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file>" << std::endl;
-        return 0;
-    }
-    Parser  parser;
 
-    std::istream *ist = &std::cin;
-    std::ifstream ist_file;
-    if (std::string(argv[1]).compare("-") != 0) {
-        ist_file.open (argv[1],std::ifstream::in);
-        ist = &ist_file;
-    }
-    std::ofstream ost(argv[2]);
-    //
-    // assuming data is coming as dataset|spec
-    //
+
+
+
+
+
+
+
+
+
+
+
+
+struct Tasks {
     
+    Tasks() {
+        // make sure vector addresses are always the same
+        _tasks.reserve(_capacity);
+    }
+    
+    bool done() const {
+        return !_more_tasks_coming && _tasks.empty();
+    }
+    
+    void flag_no_more_tasks() {
+        _more_tasks_coming = false;
+    }
+    
+    void push_task(std::string& task_description) {
+        std::lock_guard<std::mutex> guard(_mutex);
+        _tasks.push_back(std::move(task_description));
+    }
+    
+    bool pop_task(std::string& task_description) {
+        bool result = false;
+        if (_mutex.try_lock()) {
+            if (!_tasks.empty()) {
+                task_description.swap(_tasks.back());
+                _tasks.pop_back();
+                result = true;
+            }
+            _mutex.unlock();
+        }
+        return result;
+    }
+    
+    bool full() {
+        std::lock_guard<std::mutex> guard(_mutex);
+        return _tasks.size() == _capacity;
+    }
+
+    int                      _capacity { 5 };
+    std::mutex               _mutex;
+    std::vector<std::string> _tasks;
+    bool                     _more_tasks_coming { true };
+    
+};
+
+
+
+struct MessageChannel {
+    MessageChannel(std::ostream& os): _os(os) {}
+    void send(const std::string &msg) {
+        std::lock_guard<std::mutex> guard(_mutex);
+        _os << msg;
+    }
+    std::ostream&            _os;
+    std::mutex               _mutex;
+};
+
+
+void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel& msg_channel) {
+
+    {
+        std::stringstream ss;
+        ss << "thread part " << part << " started" << std::endl;
+        msg_channel.send(ss.str());
+    }
+
+    std::string part_filename = base_name + "_" + std::to_string(part);
+    std::ofstream ost(part_filename.c_str());
+
     stopwatch::Stopwatch watch;
     watch.start();
-
+    
     stopwatch::Stopwatch algorithm_watch;
-
-    ost << "problem|dataset|num_ranks|largest_rank|keys|entries|density|rank_sizes|" << RunInfoHeader() << std::endl;
     
-    //
-    // sweep, ta, hybrid = 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95
-    // k = 10 20 40 80 160 320
-    //
+    Parser  parser;
     
-    std::vector<RankSize> ks         { 5 , 10, 20, 40, 80, 160, 320 };
-    std::vector<float>    thresholds { 0.0f, 0.025f, 0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95f,1.0f };
-
-//    std::vector<RankSize> ks         { 5 };
-//    std::vector<float>    thresholds { 0.0f,0.05f,0.10f,1.0f };
-
-    auto register_topk = [](RunInfo& run_info, TopK& topk) {
-        topk.sort();
-        auto &entries = topk.entries();
-        Count sum = 0;
-        std::stringstream ss;
-        bool first = true;
-        for(auto it=entries.rbegin();it!=entries.rend();++it) {
-            sum += it->value();
-            if (!first) {
-                ss << ",";
+    bool done = false;
+    while (true) {
+        
+        std::string task_description;
+        while (true) {
+            if (tasks.pop_task(task_description)) {
+                break;
             }
-            ss << it->key() << ":" << it->value();
-            first = false;
-        }
-        run_info.topk_sum(sum);
-        run_info.topk(ss.str());
-    };
-    
-    
-    // std::istream& ist = std::cin;
-    std::string line;
-    int line_no = 0;
-    while (std::getline(*ist, line, '\n')) {
-        ++line_no;
-        if (line_no == 1) { // header hack
-            continue;
+            else {
+                std::this_thread::sleep_for(std::chrono::microseconds(100));
+                if (tasks.done()) {
+                    done = true;
+                    break;
+                }
+            }
         }
         
-        std::stringstream ss(line);
+        if (done)
+            break;
+        
+        // do the work!
+
+        std::vector<RankSize> ks         { 5 , 10, 20, 40, 80, 160, 320 };
+        std::vector<float>    thresholds { 0.0f, 0.025f, 0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95f,1.0f };
+        
+        //    std::vector<RankSize> ks         { 5 };
+        //    std::vector<float>    thresholds { 0.0f,0.05f,0.10f,1.0f };
+        
+        auto register_topk = [](RunInfo& run_info, TopK& topk) {
+            topk.sort();
+            auto &entries = topk.entries();
+            Count sum = 0;
+            std::stringstream ss;
+            bool first = true;
+            for(auto it=entries.rbegin();it!=entries.rend();++it) {
+                sum += it->value();
+                if (!first) {
+                    ss << ",";
+                }
+                ss << it->key() << ":" << it->value();
+                first = false;
+            }
+            run_info.topk_sum(sum);
+            run_info.topk(ss.str());
+        };
+        
+        // std::istream& ist = std::cin;
+        std::stringstream ss(task_description);
         std::string token;
         
         std::getline(ss, token, '|');   auto problem_id = std::stoi(token);
@@ -326,10 +402,10 @@ int main(int argc, char *argv[]) {
         
         Scanner scanner(&spec[0], &spec[spec.size()]);
         auto ok = parser.parse(scanner);
-
+        
         if (ok) {
             // std::cout << "ok " << line_no << std::endl;
-
+            
             std::unique_ptr<RankList> rank_list;
             parser.swap_rank_list(rank_list);
             // std::cout << "#ranks: " << rank_list->size() << std::endl;
@@ -377,20 +453,115 @@ int main(int argc, char *argv[]) {
                         run_info.ta_info(result_hybrid.ta_stats);
                         register_topk(run_info,result_hybrid.topk);
                     }
-
+                    
                     // std::cerr << "alg:" << *run_info.algorithm() << " k:"<< k << " threshold:" << t << " time:" << *run_info.time_seconds() << std::endl;
-
+                    
                     // output
                     ost << problem_id << "|" << dataset << "|" << num_ranks << "|" << largest_rank << "|" << keys << "|" << entries << "|" << density << "|" << rank_sizes << "|";
                     ost << run_info << std::endl;
                 }
             }
-
-            std::cerr << "finished processing problem " << problem_id << " time: " << watch.elapsed() << std::endl;
-
+            
+            {
+                std::stringstream ss;
+                ss << "finished processing problem " << problem_id << " time: " << watch.elapsed() << std::endl;
+                msg_channel.send(ss.str());
+            }
+            
         }
         else {
-            std::cerr << "problem " << line_no << std::endl;
+            std::stringstream ss;
+            ss << "problem at problem id: " << problem_id << " part " << part << std::endl;
+            msg_channel.send(ss.str());
         }
     }
+}
+
+
+
+
+
+
+int main(int argc, char *argv[]) {
+
+    if (argc != 4) {
+        std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads>" << std::endl;
+        return 0;
+    }
+
+    int parts = 1;
+    
+    try {
+        parts = std::stoi(argv[3]);
+        if (parts < 1) {
+            std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads>" << std::endl;
+            std::cout << "<threads> must be a positive number" << std::endl;
+        }
+    }
+    catch(...) {
+        std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads>" << std::endl;
+        std::cout << "<threads> must be a positive number" << std::endl;
+        return 0;
+    }
+
+    std::string base_name(argv[2]);
+    
+    std::istream *ist = &std::cin;
+    std::ifstream ist_file;
+    if (std::string(argv[1]).compare("-") != 0) {
+        ist_file.open (argv[1],std::ifstream::in);
+        ist = &ist_file;
+    }
+
+    // std::ofstream ost(argv[2]);
+
+    //
+    // assuming data is coming as dataset|spec
+    //
+    
+    stopwatch::Stopwatch watch;
+    watch.start();
+
+    // stopwatch::Stopwatch algorithm_watch;
+    // ost << "problem|dataset|num_ranks|largest_rank|keys|entries|density|rank_sizes|" << RunInfoHeader() << std::endl;
+
+    Tasks          tasks;
+    MessageChannel msg_channel(std::cerr);
+    
+    
+    std::vector<std::unique_ptr<std::thread>> threads;
+    for (int i=0;i<parts;++i) {
+        threads.push_back(std::unique_ptr<std::thread>(new std::thread(worker, i, std::ref(base_name), std::ref(tasks), std::ref(msg_channel))));
+    }
+    
+    std::string line;
+    int line_no = 0;
+    while (std::getline(*ist, line, '\n')) {
+        ++line_no;
+        if (line_no == 1) { // header hack
+            continue;
+        }
+        tasks.push_task(line);
+        while(true) {
+            if (tasks.full()) {
+                std::this_thread::sleep_for(std::chrono::microseconds(10));
+            }
+            else {
+                break;
+            }
+        }
+    }
+    
+    
+    tasks.flag_no_more_tasks();
+    
+    int i = 0;
+    for (auto &t: threads) {
+        t->join();
+        std::stringstream ss;
+        ss << "joined thread " << i << std::endl;
+        msg_channel.send(ss.str());
+        ++i;
+    }
+    
 }
