@@ -278,7 +278,8 @@ struct Tasks {
     
     void push_task(std::string& task_description) {
         std::lock_guard<std::mutex> guard(_mutex);
-        _tasks.push_back(std::move(task_description));
+        _tasks.push_back(std::string());
+        task_description.swap(_tasks.back());
     }
     
     bool pop_task(std::string& task_description) {
@@ -299,7 +300,7 @@ struct Tasks {
         return _tasks.size() == _capacity;
     }
 
-    int                      _capacity { 5 };
+    int                      _capacity { 10 };
     std::mutex               _mutex;
     std::vector<std::string> _tasks;
     bool                     _more_tasks_coming { true };
@@ -334,7 +335,7 @@ void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel
     watch.start();
     
     stopwatch::Stopwatch algorithm_watch;
-    
+
     Parser  parser;
     
     bool done = false;
