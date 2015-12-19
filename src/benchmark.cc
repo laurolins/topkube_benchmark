@@ -226,7 +226,6 @@ std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
     if (run_info.threshold())              os << *run_info.threshold();              os << "|";
     if (run_info.topk_sum())               os << *run_info.topk_sum();               os << "|";
     if (run_info.ta_k())                   os << *run_info.ta_k();                   os << "|";
-    if (run_info.ta_k())                   os << *run_info.ta_k();                   os << "|";
     if (run_info.ta_num_ranks())           os << *run_info.ta_num_ranks();           os << "|";
     if (run_info.ta_largest_rank())        os << *run_info.ta_largest_rank();        os << "|";
     if (run_info.ta_total_access())        os << *run_info.ta_total_access();        os << "|";

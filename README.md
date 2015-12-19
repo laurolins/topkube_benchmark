@@ -19,3 +19,14 @@ llins@nano3:~/data/topkube_benchmark$ time bzip2 -kv topkube_benchmark_problems.
 real    28m48.262s
 user    27m53.602s
 sys     0m14.834s
+
+
+joined thread 96
+joined thread 97
+joined thread 98
+joined thread 99
+
+real    79m51.099s
+user    987m13.918s
+sys     35m40.254s
+llins@nano3:~/data/topkube_benchmark$
