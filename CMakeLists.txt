@@ -16,6 +16,17 @@ endif(APPLE)
 if(UNIX)
    set(CMAKE_CXX_FLAGS "-std=c++11" CACHE STRING "compile flags" FORCE)
 endif(UNIX)
+
+
+
+#
+# Boost
+#
+find_package(Threads REQUIRED)
+message("---- Boost ----")
+message("CMAKE_THREAD_LIBS_INIT: ${CMAKE_THREAD_LIBS_INIT}")
+
+
                 
 # set(CMAKE_C_FLAGS "-fPIC -g")
 # set(CMAKE_CXX_FLAGS "-fPIC -g -std=c++11")
