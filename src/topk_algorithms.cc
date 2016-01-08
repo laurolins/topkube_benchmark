@@ -420,12 +420,6 @@ namespace topk_algorithms {
             }
         }
 
-        //
-        // use sweep algorithm
-        //
-        // merge [ ranks.begin() + l, ranks.end() )
-        //
-
         if (l == m) { // full TA
             
             auto ta_algorithm_result = threshold_algorithm(problem, k);
@@ -437,9 +431,15 @@ namespace topk_algorithms {
         }
         else {
 
+            //
+            // use sweep algorithm
+            //
+            // merge [ ranks.begin() + l, ranks.end() )
+            //
+
             ProblemRankVector sweep_problem(ranks,l,m);
 
-            auto sweep_result = sweep(&sweep_problem, 0); // run a whole sweep on all ranks form l to m
+            auto sweep_result = sweep(&sweep_problem, 0); // run a whole sweep on all ranks from l to m
             
             result.sweep_stats = sweep_result.stats;
             

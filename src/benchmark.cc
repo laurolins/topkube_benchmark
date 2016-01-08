@@ -212,7 +212,7 @@ struct RunInfo {
     Maybe<Count>    _sweep_num_ranks;
     Maybe<Count>    _sweep_entries;
     
-    // algorithm|time|k|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries
+    // algorithm|time|k|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_entries|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries
     
 };
 
@@ -228,6 +228,7 @@ std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
     if (run_info.ta_k())                   os << *run_info.ta_k();                   os << "|";
     if (run_info.ta_num_ranks())           os << *run_info.ta_num_ranks();           os << "|";
     if (run_info.ta_largest_rank())        os << *run_info.ta_largest_rank();        os << "|";
+    if (run_info.ta_entries())             os << *run_info.ta_entries();             os << "|";
     if (run_info.ta_total_access())        os << *run_info.ta_total_access();        os << "|";
     if (run_info.ta_ordered_access_hit())  os << *run_info.ta_ordered_access_hit();  os << "|";
     if (run_info.ta_ordered_access_miss()) os << *run_info.ta_ordered_access_miss(); os << "|";
@@ -242,19 +243,9 @@ std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
 }
 
 std::ostream& operator<<(std::ostream& os, const RunInfoHeader& run_info_header) {
-    os << "algorithm|k|time|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries|topk";
+    os << "algorithm|k|time|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_entries|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries|topk";
     return os;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
