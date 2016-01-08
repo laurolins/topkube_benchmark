@@ -33,7 +33,7 @@ boxplot(split(log(t$keys/t$num_ranks,10),t$dataset))
 
 # global axis limits
 xlim = c(-3.25,0.0)
-ylim = c(-2,6)
+ylim = c(-2,5)
 
 #
 # Understand the basics: fix k and see how the length of the "proof of top k" grows.
