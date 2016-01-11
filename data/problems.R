@@ -93,17 +93,9 @@ make.cumulative.table = function(name,values, classes) {
 }
 
 
-input.columns = c("keys","num_ranks","entries","density") 
-input = lapply(input.columns,
-              function(name) {
-                  make.cumulative.table(name,t[[name]],t$dataset)
-              })
-names(input) = input.columns
 
-
-
-render = function(filename, rng) {
-  pdf(filename,width=14,height=4,pointsize=10)
+render = function(input, filename, rng) {
+  pdf(filename,width=7,height=4,pointsize=10)
   plot.new()
   columns = length(input)
   for (col in 1:columns) {
@@ -123,8 +115,21 @@ render = function(filename, rng) {
 }
 
 
-# render("topkube_benchmark_problem_traits_distribution_0to1.pdf",c(0,1))
-render("/Users/llins/papers/xraytopk/tvcg/figs/topkube_benchmark_problem_traits_distribution_0to08.pdf",c(0,0.8))
 
+input.columns = c("keys","num_ranks") 
+input = lapply(input.columns,
+               function(name) {
+                 make.cumulative.table(name,t[[name]],t$dataset)
+               })
+names(input) = input.columns
+render(input,"topkube_benchmark_keys_num_ranks.pdf",c(0,0.8))
+
+input.columns = c("entries","density") 
+input = lapply(input.columns,
+               function(name) {
+                 make.cumulative.table(name,t[[name]],t$dataset)
+               })
+names(input) = input.columns
+render(input,"topkube_benchmark_entries_density.pdf",c(0,0.8))
 
 
