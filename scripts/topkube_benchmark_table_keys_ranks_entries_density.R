@@ -1,7 +1,9 @@
 setwd("/Users/llins/projects/topkube_benchmark/data")
+system('mkdir -p analysis/tables')
+
 t <- read.table("topkube_benchmark_problems_stats.psv",header=T,as.is=T,sep="|")
 
-rename = c("all", "twitter", "github", "flickr", "wikipedia")
+rename = c("all", "microblog", "github", "flickr", "wikipedia")
 names(rename) = c("all", "tweets_40M","github_58M","flickr_84M","wikipedia_120M")
 
 n = nrow(t)
@@ -53,7 +55,7 @@ result = lapply(1:length(input), function(i) {
   colnames(quantile.matrix) = sapply(0:10,function(i) sprintf("p%d",10*i))
   
   # create the variable data frame
-  variable.df = data.frame(variable=rep(variable,nrow(r)),
+  variable.df = data.frame(variable=rep(variable,nrow(quantile.matrix)),
                            dataset=sapply(names(value.groups), function(n) rename[[n]]), 
                            data.frame(quantile.matrix))
   
@@ -66,6 +68,6 @@ names(result) = input.columns
 table = do.call(rbind.data.frame,result)
 rownames(table) = 1:nrow(table)
 
-write.csv(table,"/tmp/table.csv")
+write.csv(table,"analysis/tables/topkube_benchmark_problems_keys_ranks_entries_density.csv")
 
 

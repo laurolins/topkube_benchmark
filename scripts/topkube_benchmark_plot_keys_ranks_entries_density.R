@@ -1,7 +1,10 @@
 setwd("/Users/llins/projects/topkube_benchmark/data")
+
+system('mkdir -p analysis/plots')
+
 t <- read.table("topkube_benchmark_problems_stats.psv",header=T,as.is=T,sep="|")
 
-rename = c("twitter", "github", "flickr", "wikipedia")
+rename = c("microblog", "github", "flickr", "wikipedia")
 names(rename) = c("tweets_40M","github_58M","flickr_84M","wikipedia_120M")
 
 density.all = sort(t$density)
@@ -122,7 +125,7 @@ input = lapply(input.columns,
                  make.cumulative.table(name,t[[name]],t$dataset)
                })
 names(input) = input.columns
-render(input,"topkube_benchmark_keys_num_ranks.pdf",c(0,0.8))
+render(input,"analysis/plots/topkube_benchmark_keys_num_ranks.pdf",c(0,0.8))
 
 input.columns = c("entries","density") 
 input = lapply(input.columns,
@@ -130,6 +133,4 @@ input = lapply(input.columns,
                  make.cumulative.table(name,t[[name]],t$dataset)
                })
 names(input) = input.columns
-render(input,"topkube_benchmark_entries_density.pdf",c(0,0.8))
-
-
+render(input,"analysis/plots/topkube_benchmark_entries_density.pdf",c(0,0.8))

@@ -1,4 +1,7 @@
 setwd("/Users/llins/projects/topkube_benchmark/data")
+
+system("mkdir -p analysis/tables")
+
 t <- read.table("topkube_benchmark_timing.psv",header=T,as.is=T,sep="|")
 
 sel = t$algorithm == "sweep"
@@ -11,48 +14,39 @@ speedup = sapply(1:nrow(t),function(i) {
 })
 t = data.frame(t,speedup=speedup)
 
-rename = c("twitter", "github", "flickr", "wikipedia")
-names(rename) = c("tweets_40M","github_58M","flickr_84M","wikipedia_120M")
-
 # colors
-colors = rep(gray(0.85),22)
-names(colors) = sprintf("%.3f",unique(sort(t$threshold)))
-colors[['0.100']] = gray(0.75)
-colors[['0.150']] = gray(0.55)
-colors[['0.200']] = gray(0.35)
-colors[['0.250']] = gray(0.0)
-colors[['0.300']] = gray(0.35)
-colors[['0.350']] = gray(0.55)
-colors[['0.400']] = gray(0.75)
+colors = rep(gray(0.85),7)
+names(colors) = sprintf("%d",unique(sort(t$threshold)))
+colors[['5']]   = gray(0)
+colors[['10']]  = gray(0.1)
+colors[['20']]  = gray(0.18)
+colors[['40']]  = gray(0.32)
+colors[['80']]  = gray(0.50)
+colors[['160']] = gray(0.60)
+colors[['320']] = gray(0.75)
 colors = add.alpha(colors, 0.7)
 
 # lwd
-lwd = rep(1.5,22)
-names(lwd) = sprintf("%.3f",unique(sort(t$threshold)))
-lwd[['0.100']] = 2.0
-lwd[['0.150']] = 2.5
-lwd[['0.200']] = 3.0
-lwd[['0.250']] = 4.0
-lwd[['0.300']] = 3.0
-lwd[['0.350']] = 2.5
-lwd[['0.400']] = 2.0
+lwd = rep(1.5,7)
+names(lwd) = sprintf("%d",unique(sort(t$threshold)))
+lwd[['5']] = 1.0
+lwd[['10']] = 1.5
+lwd[['20']] = 2.0
+lwd[['40']] = 2.5
+lwd[['80']] = 3.0
+lwd[['160']] = 3.5
+lwd[['320']] = 4.0
 
 # lty
-lty = rep(1,22)
-names(lty) = sprintf("%.3f",unique(sort(t$threshold)))
-lty[['0.000']] = 1
-lty[['0.050']] = 5
-lty[['0.100']] = 4
-lty[['0.150']] = 3
-lty[['0.200']] = 2
-lty[['0.250']] = 1
-lty[['0.300']] = 2
-lty[['0.350']] = 3
-lty[['0.400']] = 4
-
-
-
-
+lty = rep(1,7)
+names(lty) = sprintf("%d",unique(sort(t$threshold)))
+lty[['5']]   = 1
+lty[['10']]  = 2
+lty[['20']]  = 3
+lty[['40']]  = 4
+lty[['80']]  = 5
+lty[['160']] = 1
+lty[['320']] = 2
 
 axis.info = function (ticks, lim, label) { return(list(ticks=ticks,lim=lim,label=label)) }
 cum.ratio = function (x) { return((1:length(x))/length(x)) }
@@ -60,22 +54,22 @@ cum.ratio = function (x) { return((1:length(x))/length(x)) }
 pretty.name = function(x) {
   return(sapply(x,function(x) {
     return(sprintf("%.1f",x))
-#    if (x < 0) { return(sprintf("%.1f",x)) }
-#    if (x == 0) return("0")
-#    e = log(x,10)
-#    if (e < -1) { return(sprintf("%.3f",x)) }
-#    else if (e <= 0) { return(sprintf("%.1f",x)) }
-#    else if (e < 3) { return(sprintf("%.0f",x)) }
-#    else if (e < 4) { return(sprintf("%.0fk",x/1e3)) }
-#    else if (e < 5) { return(sprintf("%.0fk",x/1e3)) }
-#    else if (e < 6) { return(sprintf("%.0fk",x/1e3)) }
-#    else if (e < 7) { return(sprintf("%.0fm",x/1e6)) }
-#    else if (e < 8) { return(sprintf("%.0fm",x/1e6)) }
-#    else if (e < 9) { return(sprintf("%.0fm",x/1e6)) }
-#    else if (e < 10) { return(sprintf("%.0fb",x/1e9)) }
-#    else if (e < 11) { return(sprintf("%.0fb",x/1e9)) }
-#    else if (e < 12) { return(sprintf("%.0fb",x/1e9)) }
-#    else { return(sprintf("%.0f",x)) }
+    #    if (x < 0) { return(sprintf("%.1f",x)) }
+    #    if (x == 0) return("0")
+    #    e = log(x,10)
+    #    if (e < -1) { return(sprintf("%.3f",x)) }
+    #    else if (e <= 0) { return(sprintf("%.1f",x)) }
+    #    else if (e < 3) { return(sprintf("%.0f",x)) }
+    #    else if (e < 4) { return(sprintf("%.0fk",x/1e3)) }
+    #    else if (e < 5) { return(sprintf("%.0fk",x/1e3)) }
+    #    else if (e < 6) { return(sprintf("%.0fk",x/1e3)) }
+    #    else if (e < 7) { return(sprintf("%.0fm",x/1e6)) }
+    #    else if (e < 8) { return(sprintf("%.0fm",x/1e6)) }
+    #    else if (e < 9) { return(sprintf("%.0fm",x/1e6)) }
+    #    else if (e < 10) { return(sprintf("%.0fb",x/1e9)) }
+    #    else if (e < 11) { return(sprintf("%.0fb",x/1e9)) }
+    #    else if (e < 12) { return(sprintf("%.0fb",x/1e9)) }
+    #    else { return(sprintf("%.0f",x)) }
   }))
 }
 
@@ -102,7 +96,7 @@ add.alpha <- function(col, alpha=1){
 plot.data = function(xinfo, yinfo, title, values, classes, options) {
   
   values.by.dataset = split(values, classes)
-
+  
   # line.width = c(4,2.5,2.5,2.5,2.5)
   # line.type  = c(1,3,2,4,5)
   
@@ -115,13 +109,13 @@ plot.data = function(xinfo, yinfo, title, values, classes, options) {
   abline(v=xinfo$ticks,lwd=1,col=gray(0.8),lty=1)
   
   
-  legend.names  = sprintf("%.3f",unique(sort(classes)))
+  legend.names  = sprintf("%d",unique(sort(classes)))
   print(legend.names)
   
   n = length(legend.names)
   
   legend.lty    = if(options$use_lty) rev(1:length(legend.names)) else rep(1,n)
-
+  
   legend(xinfo$lim[2],0,
          legend.names,
          xjust=1,
@@ -132,12 +126,12 @@ plot.data = function(xinfo, yinfo, title, values, classes, options) {
          box.lwd=0,
          box.col="white",
          bg="#ffffffaa")
-
+  
   # print(title)
   # print(quantile(values,probs=seq(0,1,0.1)))
   
   # lines(values, cum.ratio(values), type="l",lwd=line.width[1], lty=line.type[1], col=colors[1]) # overall density vs. population
-
+  
   indices = 1:length(values.by.dataset)
   if (options$reverse_lines) indices = rev(indices)
   for (i in indices) {
@@ -175,15 +169,14 @@ render = function(filename, input, rng, options) {
   dev.off()
 }
 
-options = list(reverse_lines=F, use_lty=T, lwd_a=2, lwd_b=4)
-sel = t$threshold!=1.0 & t$threshold %in% c(0,0.05,0.1,0.15,0.2,0.25)
-# print(100*sum(sel)/sum(t$threshold==0.50))
-input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$threshold[sel]))
-render("/tmp/speedup_0_to025.pdf",input,c(0,1), options)
+options = list(reverse_lines=T, use_lty=T)
+sel = t$threshold==0.25
+input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$k[sel]))
+render("/tmp/speedup_025_by_k.pdf",input,c(0,1), options)
 
-
-options = list(reverse_lines=T, use_lty=F, lwd_a=2, lwd_b=4)
-sel = t$threshold!=1.0 & t$threshold %in% seq(0.25,0.95,0.05)
-# print(100*sum(sel)/sum(t$threshold==0.50))
-input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$threshold[sel]))
-render("/tmp/speedup_025_to095.pdf",input,c(0,1), options)
+# 
+# options = list(reverse_lines=T, use_lty=F, lwd_a=2, lwd_b=4)
+# sel = t$threshold!=1.0 & t$threshold %in% seq(0.25,0.95,0.05)
+# # print(100*sum(sel)/sum(t$threshold==0.50))
+# input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$threshold[sel]))
+# render("/tmp/speedup_025_to095.pdf",input,c(0,1), options)

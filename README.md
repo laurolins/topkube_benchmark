@@ -1,32 +1,14 @@
-```
-/san_data/research/itopk/data/log/flickr_84M-log-merges.psv
-/san_data/research/itopk/data/log/flickr_84M-timing.psv
-/san_data/research/itopk/data/log/github_58M-log-merges.psv
-/san_data/research/itopk/data/log/github_58M-query-timing.psv
-/san_data/research/itopk/data/log/tweets_40M-log-merges.psv
-/san_data/research/itopk/data/log/tweets_40M-query-timing.psv
-/san_data/research/itopk/data/log/wikipedia_2005_2014_112M-log-merges.psv
-/san_data/research/itopk/data/log/wikipedia_2005_2014_112M-query-timing.psv
+# TopKube Benchmark
 
-ssh vidaserver1.poly.edu 'head -n 10 /san_data/research/itopk/data/log/tweets_40M-log-merges.psv' > sample.psv
-```
+This is project contains a set of one thousand rank consolidation problems,
+for which we don't need a whole consolidation, but just the ability to
+quickly retrieve the top-k key-value pairs of the consolidated rank.
 
+## Resources
 
+| Description        | Size | Link                                                                                                                           |
+|--------------------+------+--------------------------------------------------------------------------------------------------------------------------------|
+| Problems           | 4.9G | [topkube_benchmark_problems.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_problems.psv.bz2)     |
+| Timing             | 11M  | [topkube_benchmark_timing.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_timing.psv.bz2)         |
+| Problem Stats Only | 17K  | [topkube_benchmark_timing.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_problems_stats.psv.bz2) | 
 
-llins@nano3:~/data/topkube_benchmark$ time bzip2 -kv topkube_benchmark_problems.psv
-  topkube_benchmark_problems.psv:  2.927:1,  2.734 bits/byte, 65.83% saved, 15342286996 in, 5242366207 out.
-
-real    28m48.262s
-user    27m53.602s
-sys     0m14.834s
-
-
-joined thread 96
-joined thread 97
-joined thread 98
-joined thread 99
-
-real    79m51.099s
-user    987m13.918s
-sys     35m40.254s
-llins@nano3:~/data/topkube_benchmark$
