@@ -30,9 +30,13 @@ make.cumulative.table = function(name,values, classes) {
   return(list(name=name, values=values[p], classes=classes[p]))
 }
 
-sel = t$threshold!=1.0 & t$threshold!=0.025
+# sel = t$threshold!=1.0 & t$threshold!=0.025
+sel = t$threshold!=0.025
 # input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$threshold[sel]))
-input = list(speedup=make.cumulative.table("speedup",t$speedup[sel],t$threshold[sel]))
+# input = list(speedup=make.cumulative.table("speedup",t$speedup[sel],t$threshold[sel]))
+
+# input = list(speedup=make.cumulative.table("speedup",t$speedup[sel],t$threshold[sel]))
+input = list(speedup=make.cumulative.table("latency",t$time[sel],t$threshold[sel]))
 
 result = lapply(1:length(input), function(i) {
   variable        = input[[i]]$name
@@ -60,8 +64,16 @@ table = do.call(rbind.data.frame,result)
 rownames(table) = 1:nrow(table)
 
 # levels = c(1.05,1.25,1.50,2.0,5,10,10000000)
-levels = c(1.1,1.5,2.0,5.0,10.0,100.0,10000000)
-breaks = c(1/rev(levels),levels)
+levels = c(1e-6,1e-3,1e-2,1e-1,2e-1,5e-1,1,10,100,1000)
+breaks=levels
+
+
+blues  = c('#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b')
+reds   = c('#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d')
+colors = c(rev(blues[2:6]),reds[2:6])
+
+
+# breaks = c(1/rev(levels),levels)
 length(breaks)
 
 A = as.matrix(table[,3:ncol(table)])
@@ -83,11 +95,16 @@ fwhite = function(x,lambda) {
   rgb(x['red',],x['green',],x['blue',])
 }
 
-blues  = c('#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b')
-reds   = c('#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d')
-white  = c('#ffffff')
-colors = c(rev(reds[2:7]),white,blues[2:7])
-colors = fwhite(colors,0.7)
+# blues  = c('#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b')
+# reds   = c('#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d')
+# white  = c('#ffffff')
+# colors = c(rev(reds[2:7]),white,blues[2:7])
+
+
+
+
+
+# colors = fwhite(colors,0.7)
 
 coords = cells.to.coords(merge(1:n,1:m))
 valtext   = sapply(1:nrow(coords),function(i) sprintf("%.2E",A[m+1-coords$y1[i],coords$x1[i]]))
@@ -99,22 +116,21 @@ col.header.text   = sapply( seq(0,100,10), function(x) sprintf("%d%%",x) )
 
 # row header
 row.header.coords = cells.to.coords(merge(0,1:(m+1)))
-row.header.text   = c("TA",sapply( seq(0.05,0.95,0.05), function(x) sprintf("%.2f",x) ))
+row.header.text   = sapply( seq(0.05,0.95,0.05), function(x) sprintf("%.2f",x) )
+row.header.text   = c("TA",row.header.text,"Sweep")
 row.header.text   = c(rev(row.header.text),expression(paste(theta," \\ %"))) # expression(theta percentile))
 
+# legend
+legend.coords = cells.to.coords(merge(1:(length(breaks)-1),-1))
+legend.colors = colors[1:(length(breaks)-1)]
+legend.text = sapply(1:(length(breaks)-1), function(i) sprintf("[%f,\n%f)", breaks[i], breaks[i+1]))
+# legend.text = c(expression(1 mu s.,"1sapply(1:(length(breaks)-1), function(i) sprintf("[%.2E,\n%.2E)", breaks[i], breaks[i+1]))
+
 # plot rectangles
-plot.rectangles = function(coords, colors, texts) {
+plot.rectangles = function(coords, colors, texts, cex=1) {
   rect(coords$x0, coords$y0, coords$x1, coords$y1, col=colors, border=NA)
-  text((coords$x0+coords$x1)/2, (coords$y0+coords$y1)/2, texts)
+  text((coords$x0+coords$x1)/2, (coords$y0+coords$y1)/2, texts, cex=cex)
 }
-
-
-
-
-
-
-
-
 
 legend = function(xlim, ylim, colors, labels) {
   ncol = length(colors)
@@ -126,33 +142,53 @@ legend = function(xlim, ylim, colors, labels) {
   coords = data.frame(x0=x0,y0=rep(ylim[1],ncol),x1=x0+dx/ncol,y1=rep(ylim[2],ncol))
   print(coords)
   rect(coords$x0,coords$y0,coords$x1,coords$y1, col=colors, border = "white")
-  text(coords$x0 + w/2,(ylim[1]+ylim[2])/2,labels,adj=c(0.5,0.5),cex=0.9)
+  text(coords$x0 + w/2,(ylim[1]+ylim[2])/2,labels,adj=c(0.5,0.5),cex=0.8)
 }
 
-pdf("analysis/plots/speedup_ranks_gt1_keys_50k.pdf",width=8,height=6.5,pointsize=9,family="Helvetica")
+fancy_seconds = function(secs) {
+  if (secs < 1e-6) {
+    sprintf("%f s.", secs)
+  }
+  else if (secs < 1e-5) {
+    sprintf("%.0f \U00B5s.",secs * 1e6)
+  }
+  else if (secs < 1e-4) {
+    sprintf("%.0f \U00B5s.",secs * 1e6)
+  }
+  else if (secs < 1e-3) {
+    sprintf("%.0f ms.",secs * 1e6)
+  }
+  else if (secs < 1e-2) {
+    sprintf("%.0f ms.",secs * 1e3)
+  }
+  else if (secs < 1e-1) {
+    sprintf("%.0f ms.",secs * 1e3)
+  }
+  else if (secs < 1e-0) {
+    sprintf("%.0f ms.",secs * 1e3)
+  }
+  else { # if (secs < 1e-0) {
+    sprintf("%.0f s.", secs)
+  }
+}
+
+
+pdf("analysis/plots/latency_ranks_gt1_keys_50k.pdf",width=8,height=6.5,pointsize=9,family="Helvetica")
 par(mar=rep(0,4))
 plot(0,type="n",xlim=c(-1,n),ylim=c(-1,m+1),axes=F,xlab="",ylab="",xaxs = "i", yaxs = "i")
 plot.rectangles(coords, valcolors, valtext)
 plot.rectangles(row.header.coords, gray(0.8), row.header.text)
 plot.rectangles(col.header.coords, gray(0.8), col.header.text)
+plot.rectangles(legend.coords, legend.colors, legend.text, cex=0.7)
+# plot.rectangles(cells.to.coords(cbind(0,-1)), gray(0.8), "Color Map", cex=0.9)
 abline(h=seq(0,m+1,1),col=gray(1),lwd=1)
 abline(v=seq(0,n+1,1),col=gray(1),lwd=1)
-legend(c(-1,11),c(-1,-0.3),tail(colors,-1),
-       c("1/100x <",
-         "1/10x < ",
-         "1/5x < ",
-         "1/2x < ",
-         "1/1.5x < ",
-         "1/1.1x <", 
-         "1.1x <", 
-         "1.5x <",
-         "2x <",
-         "5x <",
-         "10x <",
-         "100x"))
-       # sprintf("%.2E",breaks)) # ,function(s) sprintf("%s <",fancy_seconds(s))))
-
+legend(c(-1,11),c(-1,-0.3),head(colors,-1),
+       c(sapply(head(breaks,-2),
+              function(s) sprintf("%s <",fancy_seconds(s))),
+         sprintf("%s", fancy_seconds(head(tail(breaks,2),1)))))
 dev.off()
+
 
 # number of problems
 length(unique(t$problem))

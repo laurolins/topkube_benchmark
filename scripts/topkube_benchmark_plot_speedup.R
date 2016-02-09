@@ -79,6 +79,24 @@ pretty.name = function(x) {
   }))
 }
 
+pretty.e10.name = function(x) {
+  return(sapply(x,function(x) {
+    y = 10^x
+    if (y < 0.1) {
+      return(sprintf("%.2fx",y))
+    }
+    if (y < 1) {
+      return(sprintf("%.1fx",y))
+    }
+    else {
+      return(sprintf("%.0fx",y))
+    }
+  }))
+}
+
+
+
+
 ## http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
 add.alpha <- function(col, alpha=1){
   if(missing(col))
@@ -106,10 +124,10 @@ plot.data = function(xinfo, yinfo, title, values, classes, options) {
   # line.width = c(4,2.5,2.5,2.5,2.5)
   # line.type  = c(1,3,2,4,5)
   
-  par(mar=c(6,3,0.5,0.5))
+  par(mar=c(6,3,0.5,2))
   # yinfo$label
   plot(0,type="n",xlim=xinfo$lim,ylim=yinfo$lim,xlab=xinfo$label,ylab="",axes=F)
-  axis(1,at=xinfo$ticks,labels=pretty.name(xinfo$ticks))
+  axis(1,at=xinfo$ticks,labels=pretty.e10.name(xinfo$ticks))
   axis(2,at=yinfo$ticks,labels=pretty.name(yinfo$ticks),las=2)
   abline(h=yinfo$ticks,lwd=1,col=gray(0.8),lty=1)
   abline(v=xinfo$ticks,lwd=1,col=gray(0.8),lty=1)
@@ -155,7 +173,7 @@ plot.data = function(xinfo, yinfo, title, values, classes, options) {
 }
 columns = 1
 render = function(filename, input, rng, options) {
-  pdf(filename,width=5,height=5,pointsize=11)
+  pdf(filename,width=6.3,height=5,pointsize=11)
   plot.new()
   for (col in 1:length(input)) {
     # left plot
@@ -163,14 +181,23 @@ render = function(filename, input, rng, options) {
     v = data$values;
     n = length(v)
     # find value where
-    a = v[1 + as.integer((n-1)*rng[1])]
-    b = v[1 + as.integer((n-1)*rng[2])]
-    xinfo = axis.info(pretty(c(a,b),6),c(a,b),sprintf("%s",names(input)[col]))
+    a = -2 # v[1 + as.integer((n-1)*rng[1])]
+    b =  5.1 # v[1 + as.integer((n-1)*rng[2])]
+    # xinfo = axis.info(c("0.1x","1x","10x","100x","1000x","10000x"),
+    # print(sprintf("%s",names(input)[col]))
+    xinfo = axis.info(pretty(c(a,b),7),
+                      c(a,b),
+                      sprintf("%s",names(input)[col]))
     yinfo = axis.info(seq(0,1,0.1),c(0,1),"cumulative problem count ratio")
     par(fig=c((col-1)/columns,col/columns,0,1), new=TRUE)
     plot.data(xinfo, yinfo, data$name, data$values, data$classes, options)
   }
   dev.off()
+}
+
+make.cumulative.table = function(name,values, classes) {
+  p = order(values)
+  return(list(name=name, values=values[p], classes=classes[p]))
 }
 
 options = list(reverse_lines=F, use_lty=T, lwd_a=2, lwd_b=4)
@@ -179,11 +206,8 @@ sel = t$threshold!=1.0 & t$threshold %in% c(0,0.05,0.1,0.15,0.2,0.25)
 input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$threshold[sel]))
 render("analysis/plots/topkube_benchmark_plot_speedup_0_to_025.pdf",input,c(0,1), options)
 
-
 options = list(reverse_lines=T, use_lty=F, lwd_a=2, lwd_b=4)
 sel = t$threshold!=1.0 & t$threshold %in% seq(0.25,0.95,0.05)
 # print(100*sum(sel)/sum(t$threshold==0.50))
 input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$threshold[sel]))
 render("analysis/plots/topkube_benchmark_plot_speedup_025_to_095.pdf",input,c(0,1), options)
-
-
