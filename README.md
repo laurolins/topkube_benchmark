@@ -6,9 +6,9 @@ quickly retrieve the top-k key-value pairs of the consolidated rank.
 
 ## Resources
 
-| Description        | Size  | Link                                                                                                                           |
-| ----------------   |------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| Problems           | 4.9G  | [topkube_benchmark_problems.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_problems.psv.bz2)     |
-| Timing             | 11M   | [topkube_benchmark_timing.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_timing.psv.bz2)         |
-| Problem Stats Only | 17K   | [topkube_benchmark_timing.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_problems_stats.psv.bz2) | 
+| Description        | Size  | Link                                                                                                                                   |
+| ----------------   |------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Problems           | 4.9G  | [topkube_benchmark_problems.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_problems.psv.bz2)             |
+| Timing             | 11M   | [topkube_benchmark_timing.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_timing.psv.bz2)                 |
+| Problem Stats Only | 17K   | [topkube_benchmark_problems_stats.psv.bz2](http://vgc.poly.edu/files/llins/topkube_benchmark/topkube_benchmark_problems_stats.psv.bz2) | 
 
