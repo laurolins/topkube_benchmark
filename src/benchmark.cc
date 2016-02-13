@@ -121,14 +121,16 @@ struct RunInfo {
 
     RunInfo& time_seconds(float t) { _time_seconds.reset(t); return *this; }
 
-    RunInfo& threshold(float t) { _threshold.reset(t); return *this; }
+    RunInfo& run(Count run) { _run.reset(run); return *this; }
 
+    RunInfo& threshold(float t) { _threshold.reset(t); return *this; }
 
     const Maybe<std::string>& algorithm() const { return _algorithm; }
     const Maybe<std::string>& topk() const { return _topk; }
     const Maybe<Count>&       topk_sum() const { return _topk_sum; }
     const Maybe<RankSize>&    k() const { return _k; }
     const Maybe<float>   &    threshold() const { return _threshold; }
+    const Maybe<Count>&       run() const { return _run; }
     const Maybe<float>   &    time_seconds() const { return _time_seconds; }
     const Maybe<RankSize>&    ta_k() const { return _ta_k; }
     const Maybe<Count>   &    ta_num_ranks() const { return _ta_num_ranks; }
@@ -148,6 +150,7 @@ struct RunInfo {
         _algorithm.reset();
         _k.reset();
         _threshold.reset();
+        _run.reset();
         _time_seconds.reset();
         _topk_sum.reset();
         _ta_k.reset();
@@ -190,6 +193,7 @@ struct RunInfo {
     Maybe<std::string> _algorithm;
     Maybe<RankSize>    _k;
 
+    Maybe<Count>        _run;
     Maybe<float>        _threshold;
     Maybe<float>        _time_seconds;
     Maybe<Count>        _topk_sum;
@@ -222,8 +226,9 @@ struct RunInfoHeader {};
 std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
     if (run_info.algorithm())              os << *run_info.algorithm();              os << "|";
     if (run_info.k())                      os << *run_info.k();                      os << "|";
-    if (run_info.time_seconds())           os << *run_info.time_seconds();           os << "|";
     if (run_info.threshold())              os << *run_info.threshold();              os << "|";
+    if (run_info.run())                    os << *run_info.run();                    os << "|";
+    if (run_info.time_seconds())           os << *run_info.time_seconds();           os << "|";
     if (run_info.topk_sum())               os << *run_info.topk_sum();               os << "|";
     if (run_info.ta_k())                   os << *run_info.ta_k();                   os << "|";
     if (run_info.ta_num_ranks())           os << *run_info.ta_num_ranks();           os << "|";
@@ -243,7 +248,7 @@ std::ostream& operator<<(std::ostream& os, const RunInfo& run_info) {
 }
 
 std::ostream& operator<<(std::ostream& os, const RunInfoHeader& run_info_header) {
-    os << "algorithm|k|time|threshold|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_entries|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries|topk";
+    os << "algorithm|k|threshold|run|time|topk_sum|ta_k|ta_num_ranks|ta_largest_rank|ta_entries|ta_total_access|ta_ordered_access_hit|ta_ordered_access_miss|ta_random_access_hit|ta_random_access_miss|sweep_k|sweep_num_ranks|sweep_largest_rank|sweep_entries|topk";
     return os;
 }
 
@@ -298,6 +303,11 @@ struct Tasks {
 };
 
 
+//////////////////////////////////////////////////////////////////////////////////
+//
+// MessageChannel
+//
+//////////////////////////////////////////////////////////////////////////////////
 
 struct MessageChannel {
     MessageChannel(std::ostream& os): _os(os) {}
@@ -309,6 +319,26 @@ struct MessageChannel {
     std::mutex               _mutex;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Options
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct Options {
+    Options() = default;
+    const Count& runs() const { return _runs; }
+    Options& runs(const Count& c) { _runs = c; return *this; }
+    Count _runs { 1 };
+};
+
+static Options _global_options;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// worker
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel& msg_channel) {
 
@@ -351,8 +381,8 @@ void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel
         // do the work!
 
         std::vector<RankSize> ks         { 5 , 10, 20, 40, 80, 160, 320 };
-        std::vector<float>    thresholds { 0.0f, 0.025f, 0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95f,1.0f };
-        
+        std::vector<float>    thresholds { 0.0f, 0.05f,0.10f,0.15f,0.20f,0.25f,0.30f,0.35f,0.40f,0.45f,0.50f,0.55f,0.60f,0.65f,0.70f,0.75f,0.80f,0.85f,0.90f,0.95f,1.0f };
+        // 0.025f, 
         //    std::vector<RankSize> ks         { 5 };
         //    std::vector<float>    thresholds { 0.0f,0.05f,0.10f,1.0f };
         
@@ -388,7 +418,6 @@ void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel
         std::getline(ss, token, '|');   auto rank_sizes = token;
         std::getline(ss, token, '|');   auto spec = token;
         
-        
         RunInfo run_info;
         
         Scanner scanner(&spec[0], &spec[spec.size()]);
@@ -407,49 +436,59 @@ void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel
             // assuming parser problem is not dirty
             ProblemRankList problem(*rank_list.get());
             
-            
             for (auto t: thresholds) {
                 
                 for (auto k: ks) {
-                    run_info.reset();
-                    run_info.k(k);
-                    run_info.threshold(t);
+
+                    for (auto run_no=1;run_no<=_global_options.runs();++run_no) {
+
+                        run_info.reset();
+                        run_info.k(k);
+                        run_info.threshold(t);
+                        run_info.run(run_no); // set run number
                     
+                        if (t == 0.0f) { // ta
+                            run_info.algorithm("ta");
+                            algorithm_watch.start();
+                            auto result_ta = threshold_algorithm(&problem, k);
+                            auto time = algorithm_watch.elapsed();
+                            run_info.time_seconds(time);
+                            run_info.ta_info(result_ta.stats);
+                            register_topk(run_info,result_ta.topk);
+                        }
+                        else if (t == 1.0f) { // sweep
+                            run_info.algorithm("sweep");
+                            algorithm_watch.start();
+                            auto result_sweep = sweep(&problem, k);
+                            auto time = algorithm_watch.elapsed();
+                            run_info.time_seconds(time);
+                            run_info.sweep_info(result_sweep.stats);
+                            register_topk(run_info,result_sweep.topk);
+                        }
+                        else {
+                            run_info.algorithm("hybrid");
+                            algorithm_watch.start();
+                            auto result_hybrid = hybrid_algorithm(&problem, k,t);
+                            auto time = algorithm_watch.elapsed();
+                            run_info.time_seconds(time);
+                            run_info.sweep_info(result_hybrid.sweep_stats);
+                            run_info.ta_info(result_hybrid.ta_stats);
+                            register_topk(run_info,result_hybrid.topk);
+                        }
                     
-                    if (t == 0.0f) { // ta
-                        run_info.algorithm("ta");
-                        algorithm_watch.start();
-                        auto result_ta = threshold_algorithm(&problem, k);
-                        auto time = algorithm_watch.elapsed();
-                        run_info.time_seconds(time);
-                        run_info.ta_info(result_ta.stats);
-                        register_topk(run_info,result_ta.topk);
+                        // std::cerr << "alg:" << *run_info.algorithm() << " k:"<< k << " threshold:" << t << " time:" << *run_info.time_seconds() << std::endl;
+                    
+                        // output
+                        ost << problem_id 
+                            << "|" << dataset 
+                            << "|" << num_ranks 
+                            << "|" << largest_rank 
+                            << "|" << keys 
+                            << "|" << entries 
+                            << "|" << density 
+                            << "|" << rank_sizes << "|";
+                        ost << run_info << std::endl;
                     }
-                    else if (t == 1.0f) { // sweep
-                        run_info.algorithm("sweep");
-                        algorithm_watch.start();
-                        auto result_sweep = sweep(&problem, k);
-                        auto time = algorithm_watch.elapsed();
-                        run_info.time_seconds(time);
-                        run_info.sweep_info(result_sweep.stats);
-                        register_topk(run_info,result_sweep.topk);
-                    }
-                    else {
-                        run_info.algorithm("hybrid");
-                        algorithm_watch.start();
-                        auto result_hybrid = hybrid_algorithm(&problem, k,t);
-                        auto time = algorithm_watch.elapsed();
-                        run_info.time_seconds(time);
-                        run_info.sweep_info(result_hybrid.sweep_stats);
-                        run_info.ta_info(result_hybrid.ta_stats);
-                        register_topk(run_info,result_hybrid.topk);
-                    }
-                    
-                    // std::cerr << "alg:" << *run_info.algorithm() << " k:"<< k << " threshold:" << t << " time:" << *run_info.time_seconds() << std::endl;
-                    
-                    // output
-                    ost << problem_id << "|" << dataset << "|" << num_ranks << "|" << largest_rank << "|" << keys << "|" << entries << "|" << density << "|" << rank_sizes << "|";
-                    ost << run_info << std::endl;
                 }
             }
             
@@ -468,32 +507,48 @@ void worker(int part, const std::string& base_name, Tasks& tasks, MessageChannel
     }
 }
 
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// main
+//
+////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 4) {
-        std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads>" << std::endl;
+    const std::string usage("Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads> <runs>");
+
+    if (argc != 5) {
+        std::cout << usage << std::endl;
         return 0;
     }
 
     int parts = 1;
-    
+    int runs  = 1;
+
     try {
         parts = std::stoi(argv[3]);
         if (parts < 1) {
-            std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads>" << std::endl;
+            std::cout << usage << std::endl;
             std::cout << "<threads> must be a positive number" << std::endl;
+            return -1;
+        }
+
+        runs  = std::stoi(argv[4]);
+        if (runs < 1) {
+            std::cout << usage << std::endl;
+            std::cout << "<runs> must be a positive number" << std::endl;
+            return -2;
         }
     }
     catch(...) {
-        std::cout << "Usage: benchmark <input-problems-file> <output-topk-experiments-file> <threads>" << std::endl;
+        std::cout << usage << std::endl;
         std::cout << "<threads> must be a positive number" << std::endl;
+        std::cout << "<runs> must be a positive number" << std::endl;
         return 0;
     }
+
+    // set global options
+    _global_options.runs(runs);
 
     std::string base_name(argv[2]);
     

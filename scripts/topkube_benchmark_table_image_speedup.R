@@ -129,7 +129,7 @@ legend = function(xlim, ylim, colors, labels) {
   text(coords$x0 + w/2,(ylim[1]+ylim[2])/2,labels,adj=c(0.5,0.5),cex=0.9)
 }
 
-pdf("analysis/plots/speedup_ranks_gt1_keys_50k.pdf",width=8,height=6.5,pointsize=9,family="Helvetica")
+pdf("analysis/plots/speedup_by_threshold.pdf",width=8,height=6.5,pointsize=9,family="Helvetica")
 par(mar=rep(0,4))
 plot(0,type="n",xlim=c(-1,n),ylim=c(-1,m+1),axes=F,xlab="",ylab="",xaxs = "i", yaxs = "i")
 plot.rectangles(coords, valcolors, valtext)

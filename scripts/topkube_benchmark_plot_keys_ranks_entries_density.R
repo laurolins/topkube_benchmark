@@ -1,3 +1,15 @@
+## http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
+add.alpha <- function(col, alpha=1){
+  if(missing(col))
+    stop("Please provide a vector of colours.")
+  apply(sapply(col, col2rgb)/255, 2, 
+        function(x) 
+          rgb(x[1], x[2], x[3], alpha=alpha))  
+}
+
+
+
+
 setwd("/Users/llins/projects/topkube_benchmark/data")
 
 system('mkdir -p analysis/plots')
@@ -35,16 +47,6 @@ pretty.name = function(x) {
   }))
 }
 
-## http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
-add.alpha <- function(col, alpha=1){
-  if(missing(col))
-    stop("Please provide a vector of colours.")
-  apply(sapply(col, col2rgb)/255, 2, 
-        function(x) 
-          rgb(x[1], x[2], x[3], alpha=alpha))  
-}
-
-
 # split.lines = function(x, classes) {
 #   xx = split(x, classes)  
 #   r = list()
@@ -61,30 +63,33 @@ plot.data = function(xinfo, yinfo, title, values, classes) {
   line.width = c(4,2.5,2.5,2.5,2.5)
   line.type  = c(1,3,2,4,5)
   
-  par(mar=c(6,3,0.5,0.5))
+  par(mar=c(4,3,0.5,0.5))
   # yinfo$label
-  plot(0,type="n",xlim=xinfo$lim,ylim=yinfo$lim,xlab=xinfo$label,ylab="",axes=F)
+  plot(0, type="n", xlim=xinfo$lim, ylim=yinfo$lim, xlab="", ylab="",axes=F)
+  
+  # mtext(side = 2, text = xlab=xinfo$label, line = 3)
   axis(1,at=xinfo$ticks,labels=pretty.name(xinfo$ticks))
   axis(2,at=yinfo$ticks,labels=pretty.name(yinfo$ticks),las=2)
   abline(h=yinfo$ticks,lwd=1,col=gray(0.8),lty=1)
   abline(v=xinfo$ticks,lwd=1,col=gray(0.8),lty=1)
 
+  mtext(sprintf("Cumulative distribution of %s",xinfo$label), side = 3, line = -1)
+  mtext(xinfo$label, side = 1, line = 2.5)
   
   legend.names  = c("all", sapply(names(values.by.dataset),function(n) rename[[n]]))
   legend.lty    = 1:5
   legend(xinfo$lim[2],0,legend.names,xjust=1,yjust=0,col=colors,lty=line.type,lwd=line.width,box.lwd=0,box.col="white",bg="#ffffffaa")
   
-
-  print(title)
-  print(quantile(values,probs=seq(0,1,0.1)))
+  # print(title)
+  # print(quantile(values,probs=seq(0,1,0.1)))
   
   lines(values, cum.ratio(values), type="l",lwd=line.width[1], lty=line.type[1], col=colors[1]) # overall density vs. population
   for (i in 1:length(values.by.dataset)) {
     x = values.by.dataset[[i]]
     lines(x, cum.ratio(x), type="l",lwd=line.width[i+1],col=colors[1+i],lty=line.type[1+i]) # overall density vs. population
 
-    print(names(values.by.dataset)[i])
-    print(quantile(x,probs=seq(0,1,0.1)))
+    # print(names(values.by.dataset)[i])
+    # print(quantile(x,probs=seq(0,1,0.1)))
   }
 
 }
@@ -98,7 +103,7 @@ make.cumulative.table = function(name,values, classes) {
 
 
 render = function(input, filename, rng) {
-  pdf(filename,width=7,height=4,pointsize=10)
+  pdf(filename,width=4.5,height=4,pointsize=13)
   plot.new()
   columns = length(input)
   for (col in 1:columns) {
@@ -117,20 +122,28 @@ render = function(input, filename, rng) {
   dev.off()
 }
 
+for (variable in c("keys","num_ranks","entries","density")) {
+  input.columns = c(variable) 
+  input = lapply(input.columns,
+                 function(name) {
+                   make.cumulative.table(name,t[[name]],t$dataset)
+                 })
+  names(input) = input.columns
+  render(input,sprintf("analysis/plots/topkube_benchmark_%s.pdf",variable),c(0,0.8))
+}
 
-
-input.columns = c("keys","num_ranks") 
-input = lapply(input.columns,
-               function(name) {
-                 make.cumulative.table(name,t[[name]],t$dataset)
-               })
-names(input) = input.columns
-render(input,"analysis/plots/topkube_benchmark_keys_num_ranks.pdf",c(0,0.8))
-
-input.columns = c("entries","density") 
-input = lapply(input.columns,
-               function(name) {
-                 make.cumulative.table(name,t[[name]],t$dataset)
-               })
-names(input) = input.columns
-render(input,"analysis/plots/topkube_benchmark_entries_density.pdf",c(0,0.8))
+# input.columns = c("keys","num_ranks") 
+# input = lapply(input.columns,
+#                function(name) {
+#                  make.cumulative.table(name,t[[name]],t$dataset)
+#                })
+# names(input) = input.columns
+# render(input,"analysis/plots/topkube_benchmark_keys_num_ranks.pdf",c(0,0.8))
+# 
+# input.columns = c("entries","density") 
+# input = lapply(input.columns,
+#                function(name) {
+#                  make.cumulative.table(name,t[[name]],t$dataset)
+#                })
+# names(input) = input.columns
+# render(input,"analysis/plots/topkube_benchmark_entries_density.pdf",c(0,0.8))
