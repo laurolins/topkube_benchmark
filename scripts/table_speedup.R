@@ -81,9 +81,6 @@ render_tableimage = function(input, options) {
   #
   cells.to.coords <- function(cells) { data.frame(x0=cells[,1]-1,y0=cells[,2]-1,x1=cells[,1],y1=cells[,2]) }
 
-  # blues  = c('#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b')
-  # reds   = c('#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d')
-
   fwhite = function(x,lambda) {
     x = (lambda * col2rgb(x) + (1-lambda) * 255)/255.0
     rgb(x['red',],x['green',],x['blue',])
@@ -93,7 +90,7 @@ render_tableimage = function(input, options) {
   reds   = c('#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d')
   white  = c('#ffffff')
   colors = c(rev(reds[2:7]),white,blues[2:7])
-  colors = fwhite(colors,0.6)
+  colors = fwhite(colors,0.55)
   
   coords = cells.to.coords(merge(1:n,1:m))
   valtext   = sapply(1:nrow(coords),function(i) sprintf("%.2E",A[m+1-coords$y1[i],coords$x1[i]]))
@@ -106,7 +103,7 @@ render_tableimage = function(input, options) {
   # row header
   row.header.coords = cells.to.coords(merge(0,1:(m+1)))
   row.header.text   = rownames(x) # c("TA",sapply( seq(0.05,0.95,0.05), function(x) sprintf("%.2f",x) ))
-  row.header.text   = c(rev(row.header.text),expression(paste(theta," \\ %"))) # expression(theta percentile))
+  row.header.text   = c(rev(row.header.text),options[["header"]]) # expression(theta percentile))
   
   # plot rectangles
   plot.rectangles = function(coords, colors, texts) {
@@ -165,8 +162,8 @@ render_tableimage = function(input, options) {
 
 sel = t$threshold!=1.0
 input = list(speedup=make.cumulative.table("speedup",t$speedup[sel],t$threshold[sel]))
-render_tableimage(input, list(filename="analysis/plots/table_speedup_by_threshold.pdf", width=8, height=6.5))
+render_tableimage(input, list(filename="analysis/plots/table_speedup_by_threshold.pdf", width=8, height=6.5, header=expression(paste(theta," \\ %"))))
 
 sel = t$threshold==0.25
 input = list(speedup=make.cumulative.table("speedup",t$speedup[sel],t$k[sel]))
-render_tableimage(input, list(filename="analysis/plots/table_speedup_hybrid_025_by_k.pdf", width=8, height=3))
+render_tableimage(input, list(filename="analysis/plots/table_speedup_hybrid_025_by_k.pdf", width=8, height=3, header="k \\ %"))

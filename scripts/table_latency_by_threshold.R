@@ -183,6 +183,8 @@ plot.rectangles(legend.coords, legend.colors, legend.text, cex=0.7)
 abline(h=seq(0,m+1,1),col=gray(1),lwd=1)
 abline(v=seq(0,n+1,1),col=gray(1),lwd=1)
 legend.text = sapply(head(breaks,-1), function (s) sprintf("%s",fancy_seconds(s)))
+# append < in all expect last legend.text
+legend.text = paste(legend.text,c(rep(" <",length(legend.text)-1),""))
 create.legend(
   legend.xlim,
   legend.ylim,
