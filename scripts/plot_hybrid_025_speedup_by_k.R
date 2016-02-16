@@ -1,18 +1,12 @@
 setwd("/Users/llins/projects/topkube_benchmark/data")
 
-system("mkdir -p analysis/tables")
+system("mkdir -p analysis/plots")
 
-t <- read.table("topkube_benchmark_timing.psv",header=T,as.is=T,sep="|")
+load("topkube_benchmark_timing_nano4_runs5_threads20_median.Rdata")
 
-sel = t$algorithm == "sweep"
-a = data.frame(problem=t$problem[sel],k=t$k[sel],time=t$time[sel])
-speedup = sapply(1:nrow(t),function(i) {
-  index = min(which(a$problem==t$problem[i] & a$k==t$k[i]))
-  sweep_time = a$time[index]
-  #print(sprintf("i: %d sweep_time: %f time: %f speedup: %f",i,sweep_time,t$time[i],sweep_time/t$time[i]))
-  return(sweep_time/t$time[i])
-})
-t = data.frame(t,speedup=speedup)
+t = robust.table
+
+n = nrow(t)
 
 # colors
 colors = rep(gray(0.85),7)
@@ -116,28 +110,30 @@ plot.data = function(xinfo, yinfo, title, values, classes, options) {
   # line.width = c(4,2.5,2.5,2.5,2.5)
   # line.type  = c(1,3,2,4,5)
   
-  par(mar=c(6,3,0.5,0.5))
+  par(mar=c(4.5,3,0.5,0.5))
   # yinfo$label
-  plot(0,type="n",xlim=xinfo$lim,ylim=yinfo$lim,xlab=xinfo$label,ylab="",axes=F)
+  plot(0,type="n",xlim=xinfo$lim,ylim=yinfo$lim,xlab="",ylab="",axes=F)
   axis(1,at=xinfo$ticks,labels=pretty.e10.name(xinfo$ticks))
   axis(2,at=yinfo$ticks,labels=pretty.name(yinfo$ticks),las=2)
   abline(h=yinfo$ticks,lwd=1,col=gray(0.8),lty=1)
   abline(v=xinfo$ticks,lwd=1,col=gray(0.8),lty=1)
   
+  mtext(xinfo$label,side=1,line=2.5)
+  
   legend.names  = sprintf("%d",unique(sort(classes)))
   n = length(legend.names)
   legend.lty    = if(options$use_lty) rev(1:length(legend.names)) else rep(1,n)
   
-#   legend(xinfo$lim[2],0,
-#          legend.names,
-#          xjust=1,
-#          yjust=0,
-#          col=sapply(legend.names,function(n) colors[[n]]),
-#          lty=sapply(legend.names,function(n) lty[[n]]),
-#          lwd=sapply(legend.names,function(n) lwd[[n]]),
-#          box.lwd=0,
-#          box.col="white",
-#          bg="#ffffffaa")
+  legend(xinfo$lim[2],0,
+         legend.names,
+         xjust=1,
+         yjust=0,
+         col=sapply(legend.names,function(n) colors[[n]]),
+         lty=sapply(legend.names,function(n) lty[[n]]),
+         lwd=sapply(legend.names,function(n) lwd[[n]]),
+         box.lwd=0,
+         box.col="white",
+         bg="#ffffff")
   
   # print(title)
   # print(quantile(values,probs=seq(0,1,0.1)))
@@ -156,13 +152,10 @@ plot.data = function(xinfo, yinfo, title, values, classes, options) {
     # print(names(values.by.dataset)[i])
     # print(quantile(x,probs=seq(0,1,0.1)))
   }
-  
 }
 
-
-
 render = function(filename, input, rng, options) {
-  pdf(filename,width=6.5,height=5,pointsize=12)
+  pdf(filename,width=6.3,height=5,pointsize=13)
   plot.new()
   for (col in 1:length(input)) {
     # left plot
@@ -170,8 +163,10 @@ render = function(filename, input, rng, options) {
     v = data$values;
     n = length(v)
     # find value where
-    a = v[1 + as.integer((n-1)*rng[1])]
-    b = v[1 + as.integer((n-1)*rng[2])]
+    a = -2 # v[1 + as.integer((n-1)*rng[1])]
+    b =  4.2 # v[1 + as.integer((n-1)*rng[2])]
+    # a = v[1 + as.integer((n-1)*rng[1])]
+    # b = v[1 + as.integer((n-1)*rng[2])]
     xinfo = axis.info(pretty(c(a,b),6),c(a,b),sprintf("%s",names(input)[col]))
     yinfo = axis.info(seq(0,1,0.1),c(0,1),"cumulative problem count ratio")
     print(xinfo)
@@ -185,7 +180,7 @@ render = function(filename, input, rng, options) {
 options = list(reverse_lines=T, use_lty=T)
 sel = t$threshold==0.25
 input = list(speedup=make.cumulative.table("speedup",log(t$speedup[sel],10),t$k[sel]))
-render("/tmp/speedup_025_by_k.pdf",input,c(0,1), options)
+render("analysis/plots/plot_speedup_025_by_k.pdf",input,c(0,1), options)
 
 # 
 # options = list(reverse_lines=T, use_lty=F, lwd_a=2, lwd_b=4)
