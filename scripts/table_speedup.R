@@ -86,12 +86,36 @@ render_tableimage = function(input, options) {
     rgb(x['red',],x['green',],x['blue',])
   }
   
+  fscale = function(colors, lambda, decay=1, pow=1) {
+    lambdas = lambda * decay^(0:(length(colors)-1))
+    f = function(x) {
+      m   = col2rgb(x)/255
+      mm  = lapply(2:ncol(m),function(i) m[,i-1] * (1-lambdas[i-1]) + m[,i] * lambdas[i-1])
+      mmm = cbind(m[,1],do.call(cbind,mm))
+      rgb(mmm[1,],mmm[2,],mmm[3,],maxColorValue=1)
+    }
+    if (pow > 0) {
+      for (i in 1:pow) {
+        colors = f(colors)
+      }
+    }
+    colors
+  }
+
+  # ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b']
   blues  = c('#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b')
+  blues  = blues[2:7]
+  #blues[1] = fwhite(blues[2],0.5)
+  #blues[4:6] = fwhite(blues[4:6],0.9)
+  # blues  = fscale(blues,1,0.75,2)
+  blues  = fwhite(blues,0.6)
   reds   = c('#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d')
+  reds   = reds[2:7]
+  reds[3:5] = fwhite(reds[3:5],0.9)
+  # reds   = fscale(reds,0.5,1,1)
   white  = c('#ffffff')
-  colors = c(rev(reds[2:7]),white,blues[2:7])
-  colors = fwhite(colors,0.55)
-  
+  colors = c(rev(reds),white,blues)
+
   coords = cells.to.coords(merge(1:n,1:m))
   valtext   = sapply(1:nrow(coords),function(i) sprintf("%.2E",A[m+1-coords$y1[i],coords$x1[i]]))
   valcolors = sapply(1:nrow(coords),function(i) colors[x[m+1-coords$y1[i],coords$x1[i]]])
@@ -142,9 +166,8 @@ render_tableimage = function(input, options) {
   abline(v=seq(0,n+1,1),col=gray(1),lwd=1)
   legend(legend.xlim,
          legend.ylim,
-         tail(colors,-1),
-         c("1/100x <",
-           "1/10x < ",
+         tail(colors,-2),
+         c("1/10x < ",
            "1/5x < ",
            "1/2x < ",
            "1/1.5x < ",

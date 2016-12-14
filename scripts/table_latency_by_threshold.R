@@ -95,10 +95,6 @@ fwhite = function(x,lambda) {
 # colors = c(rev(reds[2:7]),white,blues[2:7])
 colors = fwhite(colors,0.6) # c(rev(reds[2:7]),white,blues[2:7])
 
-
-
-
-
 # colors = fwhite(colors,0.7)
 
 coords = cells.to.coords(merge(1:n,1:m))
