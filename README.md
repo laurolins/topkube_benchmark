@@ -1,8 +1,7 @@
 # TopKube Benchmark
 
-This project contains a set of one thousand rank consolidation problems,
-for which we don't need a whole consolidation, but just the ability to
-quickly retrieve the top-k key-value pairs of the consolidated rank.
+This project contains a set of one thousand rank consolidation problems
+for which we just want to retrieve onle the top-k key-value pairs of the consolidated rank.
 
 ## Resources
 
