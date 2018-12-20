@@ -1,6 +1,6 @@
 # TopKube Benchmark
 
-This project contains 1000 rank consolidation problems. We used these problems while studying the partial consolidation of the top-k key-value pairs in the [TopKube paper](https://vgc.poly.edu/~fmiranda/topkube/tvcg-2017-topkube.pdf)
+This project contains 1000 rank consolidation problems. We used these problems while studying the partial consolidation of the top-k key-value pairs in the [TopKube paper](https://vgc.poly.edu/~fmiranda/topkube/tvcg-2017-topkube.pdf).
 
 ## Resources
 
